@@ -5,7 +5,7 @@
 #
 
 # Name of this project
-name: terraform-example-module
+name: terraform-aws-ec2-client-vpn
 
 # Logo for this project
 #logo: docs/logo.png
@@ -20,7 +20,7 @@ copyrights:
     year: "2020"
 
 # Canonical GitHub repo
-github_repo: cloudposse/terraform-example-module
+github_repo: cloudposse/terraform-aws-ec2-client-vpn
 
 # Badges to display
 badges:
@@ -36,9 +36,9 @@ badges:
 
 # List any related terraform modules that this module may be used with or that this module depends on.
 related:
-  - name: "terraform-null-label"
-    description: "Terraform module designed to generate consistent names and tags for resources. Use terraform-null-label to implement a strict naming convention."
-    url: "https://github.com/cloudposse/terraform-null-label"
+  - name: "terraform-aws-components"
+    description: "Repository collection of aws components."
+    url: "https://github.com/cloudposse/terraform-aws-components"
 
 # List any resources helpful for someone to get started. For example, link to the hashicorp documentation or AWS documentation.
 references:
@@ -57,8 +57,7 @@ references:
 
 # Short description of this project
 description: |-
-  This is `terraform-example-module` project provides all the scaffolding for a typical well-built Cloud Posse module. It's a template repository you can
-  use when creating new repositories.
+  The `terraform-aws-ec2-client-vpn` project provides for ec2 client vpn infrastructure.
 
 # Introduction to the project
 #introduction: |-
@@ -73,7 +72,7 @@ usage: |-
 
   ```hcl
   module "example" {
-    source = "https://github.com/cloudposse/terraform-example-module.git?ref=master"
+    source = "https://github.com/cloudposse/terraform-aws-ec2-client-vpn?ref=master"
     example = "Hello world!"
   }
   ```
@@ -81,7 +80,7 @@ usage: |-
 # Example usage
 examples: |-
   Here is an example of using this module:
-  - [`examples/complete`](https://github.com/cloudposse/terraform-example-module/) - complete example of using this module
+  - [`examples/complete`](https://github.com/cloudposse/terraform-aws-ec2-client-vpn/examples/complete/) - complete example of using this module
 
 # How to get started quickly
 #quickstart: |-
@@ -96,3 +95,5 @@ include:
 contributors:
   - name: "Erik Osterman"
     github: "osterman"
+  - name: "Leo Przybylski"
+    github: "r351574nc3"
