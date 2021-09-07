@@ -82,29 +82,11 @@ resource "aws_cloudwatch_log_stream" "vpn" {
   log_group_name = aws_cloudwatch_log_group.vpn.name
 }
 
-resource "awsutils_export_client_config" "default" {
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
-  filename               = "${path.root}/vpn_config/${module.this.id}-client-config-final.ovpn"
+data "awsutils_ec2_client_vpn_export_client_config" "default" {
+  id = aws_ec2_client_vpn_endpoint.default.id
 
   depends_on = [
     aws_ec2_client_vpn_endpoint.default,
     aws_ec2_client_vpn_network_association.default,
   ]
-}
-
-data "local_file" "client_config_file" {
-  filename = "${path.root}/vpn_config/${module.this.id}-client-config-original.ovpn"
-
-  depends_on = [
-    null_resource.export_client_config
-  ]
-}
-
-data "template_file" "client_config" {
-  template = file("${path.module}/templates/client-config.ovpn.tpl")
-  vars = {
-    cert                   = module.tls_self_signed.root_cert_pem,
-    private_key            = module.tls_self_signed.root_private_key_pem,
-    original_client_config = data.local_file.client_config_file.content
-  }
 }
