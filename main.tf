@@ -1,28 +1,81 @@
 provider "awsutils" {
-  region = "us-east-1"
+  region = var.region
 }
 
-module "tls_self_signed" {
-  source = "./modules/tls-self-signed"
+module "self_signed_cert_ca" {
+  source = "cloudposse/ssm-tls-self-signed-cert/aws"
 
-  organization_name = var.organization_name
+  name = "self-signed-cert-ca"
+
+  subject = {
+    common_name  = module.this.id
+    organization = var.organization_name
+  }
+
+  basic_constraints = {
+    ca = true
+  }
+
+  context = module.this.context
+}
+
+module "self_signed_cert_root" {
+  source = "cloudposse/ssm-tls-self-signed-cert/aws"
+
+  name = "self-signed-cert-root"
+
+  subject = {
+    common_name  = module.this.id
+    organization = var.organization_name
+  }
+
+  basic_constraints = {
+    ca = false
+  }
+
+  context = module.this.context
+}
+
+module "self_signed_cert_server" {
+  source = "cloudposse/ssm-tls-self-signed-cert/aws"
+
+  name = "self-signed-cert-server"
+
+  subject = {
+    common_name  = module.this.id
+    organization = var.organization_name
+  }
+
+  basic_constraints = {
+    ca = false
+  }
+
+  context = module.this.context
 }
 
 resource "aws_acm_certificate" "ca" {
-  private_key      = module.tls_self_signed.ca_private_key_pem
-  certificate_body = module.tls_self_signed.ca_cert_pem
+  private_key      = module.self_signed_cert_ca.ca_private_key_pem
+  certificate_body = module.self_signed_cert_ca.certificate_pem
 }
 
 resource "aws_acm_certificate" "root" {
-  private_key       = module.tls_self_signed.root_private_key_pem
-  certificate_body  = module.tls_self_signed.root_cert_pem
-  certificate_chain = module.tls_self_signed.ca_cert_pem
+  private_key       = module.self_signed_cert_root.root_private_key_pem
+  certificate_body  = module.self_signed_cert_root.certificate_pem
+  certificate_chain = module.self_signed_cert_ca.certificate_pem
 }
 
 resource "aws_acm_certificate" "server" {
-  private_key       = module.tls_self_signed.server_private_key_pem
-  certificate_body  = module.tls_self_signed.server_cert_pem
-  certificate_chain = module.tls_self_signed.ca_cert_pem
+  private_key       = module.self_signed_cert_server.server_private_key_pem
+  certificate_body  = module.self_signed_cert_server.certificate_pem
+  certificate_chain = module.self_signed_cert_ca.certificate_pem
+}
+
+module "cloudwatch_log" {
+  source = "cloudposse/cloudwatch-logs/aws"
+
+  stream_names = var.stream_names
+
+  context = module.this.context
 }
 
 resource "aws_ec2_client_vpn_endpoint" "default" {
@@ -37,8 +90,8 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
 
   connection_log_options {
     enabled               = var.logging_enabled
-    cloudwatch_log_group  = var.logging_enabled ? aws_cloudwatch_log_group.vpn.name : null
-    cloudwatch_log_stream = var.logging_enabled ? aws_cloudwatch_log_stream.vpn.name : null
+    cloudwatch_log_group  = var.logging_enabled ? module.cloudwatch_log.log_group_name : null
+    cloudwatch_log_stream = var.logging_enabled ? element(var.stream_names, 0) : null
   }
 
   tags = module.this.tags
@@ -69,17 +122,6 @@ resource "aws_ec2_client_vpn_route" "internet_route" {
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
   destination_cidr_block = "0.0.0.0/0"
   target_vpc_subnet_id   = aws_ec2_client_vpn_network_association.default.subnet_id
-}
-
-resource "aws_cloudwatch_log_group" "vpn" {
-  name              = "/aws/vpn/${module.this.id}/logs"
-  retention_in_days = var.logs_retention
-  tags              = module.this.tags
-}
-
-resource "aws_cloudwatch_log_stream" "vpn" {
-  name           = "${module.this.id}-vpn-usage"
-  log_group_name = aws_cloudwatch_log_group.vpn.name
 }
 
 data "awsutils_ec2_client_vpn_export_client_config" "default" {
