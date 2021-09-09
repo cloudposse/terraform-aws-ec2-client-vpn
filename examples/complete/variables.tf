@@ -6,10 +6,6 @@ variable "client_cidr" {
   type = string
 }
 
-variable "aws_subnet_id" {
-  type = string
-}
-
 variable "availability_zones" {
   type = list(string)
 }

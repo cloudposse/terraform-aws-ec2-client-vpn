@@ -42,10 +42,9 @@ variable "retention_in_days" {
   default     = "30"
 }
 
-variable "stream_names" {
-  type        = list(string)
-  description = "Names of streams"
-  default     = []
+variable "logging_stream_name" {
+  type        = string
+  description = "Names of stream used for logging"
 }
 
 variable "basic_constraints" {
@@ -60,4 +59,79 @@ variable "basic_constraints" {
   default = {
     ca = false
   }
+}
+
+variable "validity" {
+  description = <<-EOT
+    Validity settings for the issued certificate:
+    `duration_hours`: The number of hours from issuing the certificate until it becomes invalid.
+    `early_renewal_hours`: If set, the resource will consider the certificate to have expired the given number of hours before its actual expiry time (see: [self_signed_cert.early_renewal_hours](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/self_signed_cert#early_renewal_hours)).
+    Defaults to 10 years and no early renewal hours.
+  EOT
+  type = object({
+    duration_hours      = number
+    early_renewal_hours = number
+  })
+  default = {
+    duration_hours      = 87600
+    early_renewal_hours = null
+  }
+}
+
+variable "saml_metadata_document" {
+  default     = null
+  description = "Optional SAML metadata document. Must include this or `saml_provider_arn`"
+  type        = string
+}
+
+variable "saml_provider_arn" {
+  default     = null
+  description = "Optional SAML provider ARN. Must include this or `saml_metadata_document`"
+  type        = string
+
+  validation {
+    error_message = "Invalid SAML provider ARN."
+
+    condition = (
+      var.saml_provider_arn == null ||
+      try(length(regexall(
+        "^arn:aws:iam::(?P<account_id>\\d{12}):saml-provider/(?P<provider_name>[\\w+=,\\.@-]+)$",
+        var.saml_provider_arn
+        )) > 0,
+        false
+    ))
+  }
+}
+
+variable "additional_routes" {
+  default     = []
+  description = "A list of additional routes that should be attached to the Client VPN endpoint"
+
+  type = list(object({
+    destination_cidr_block = string
+    description            = string
+    target_vpc_subnet_id   = string
+  }))
+}
+
+variable "additional_security_groups" {
+  default     = []
+  description = "List of security groups to attach to the client vpn network associations"
+  type        = list(string)
+}
+
+variable "associated_subnets" {
+  type        = list(string)
+  description = "List of subnets to associate with the VPN endpoint"
+}
+
+variable "authorization_rules" {
+  type = list(object({
+    name                 = string
+    access_group_id      = string
+    authorize_all_groups = bool
+    description          = string
+    target_network_cidr  = string
+  }))
+  description = "List of objects describing the authorization rules for the client vpn"
 }
