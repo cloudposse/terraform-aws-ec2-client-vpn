@@ -3,8 +3,9 @@ provider "awsutils" {
 }
 
 locals {
-    enabled = module.this.enabled
-    mutual_enabled = 
+  enabled           = module.this.enabled
+  mutual_enabled    = var.authentication_type == "certificate-authentication"
+  federated_enabled = var.authentication_type == "federated_authentication"
 }
 
 module "self_signed_cert_ca" {
@@ -46,7 +47,7 @@ module "self_signed_cert_root" {
   allowed_uses = [
     "key_encipherment",
     "digital_signature",
-    "server_auth"    
+    "server_auth"
   ]
 
   context = module.this.context
@@ -69,7 +70,7 @@ module "self_signed_cert_server" {
   allowed_uses = [
     "key_encipherment",
     "digital_signature",
-    "server_auth"    
+    "server_auth"
   ]
 
   context = module.this.context
@@ -95,7 +96,7 @@ resource "aws_acm_certificate" "server" {
 module "cloudwatch_log" {
   source = "cloudposse/cloudwatch-logs/aws"
 
-  stream_names = [ var.logging_stream_name ]
+  stream_names = [var.logging_stream_name]
 
   context = module.this.context
 }
@@ -106,10 +107,10 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   client_cidr_block      = var.client_cidr
 
   authentication_options = local.mutual_enabled ? {
-    type                       = "certificate-authentication"
+    type                       = var.authentication_type
     root_certificate_chain_arn = aws_acm_certificate.root.arn
-  } : {
-    type              = "federated-authentication"
+    } : {
+    type              = var.authentication_type
     saml_provider_arn = try(aws_iam_saml_provider.this[0].arn, var.saml_provider_arn)
   }
 
@@ -136,6 +137,9 @@ resource "aws_ec2_client_vpn_authorization_rule" "internal" {
 resource "aws_ec2_client_vpn_authorization_rule" "internet_rule" {
   count = local.enabled && var.internet_access_enabled ? 1 : 0
 
+  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
+  target_network_cidr    = "0.0.0.0/0"
+  authorize_all_groups   = true
 }
 
 resource "aws_ec2_client_vpn_route" "internet_route" {
@@ -146,19 +150,26 @@ resource "aws_ec2_client_vpn_route" "internet_route" {
   target_vpc_subnet_id   = aws_ec2_client_vpn_network_association.default.subnet_id
 }
 
-resource "aws_security_group" "this" {
-  name_prefix = var.name
-  description = "Client VPN network associations"
-  tags        = var.tags
-  vpc_id      = var.vpc_id
+module "vpn_security_group" {
+  source = "cloudposse/security-group"
 
-  ingress {
-    description = "Allow self access only by default"
-    from_port   = 0
-    protocol    = -1
-    self        = true
-    to_port     = 0
-  }
+  attributes = ["simple"]
+  rules = [
+    {
+      key         = "vpn-self"
+      type        = "ingress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Allow self access only by default"
+      self        = true
+    },
+  ]
+
+  vpc_id = module.vpc.vpc_id
+
+  context = module.this.context
 }
 
 resource "aws_ec2_client_vpn_network_association" "this" {

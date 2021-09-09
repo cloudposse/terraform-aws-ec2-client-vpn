@@ -7,29 +7,22 @@ variable "client_cidr" {
   description = "Network CIDR to use for clients"
 }
 
-variable "aws_subnet_id" {
-  type        = string
-  description = "The Subnet ID to associate with the Client VPN Endpoint."
-}
-
-variable "aws_authorization_rule_target_cidr" {
-  type        = string
-  description = "The target CIDR address within your VPC that you would like to provider authorization for."
-}
-
 variable "logging_enabled" {
   type        = bool
   default     = false
   description = "Enables or disables Client VPN Cloudwatch logging."
 }
 
-variable "internet_access_enabled" {
-  type        = bool
-  default     = true
+variable "authentication_type" {
+  type        = string
+  default     = "certificate-authentication"
   description = <<-EOT
-    Enables an authorization rule and route for the VPN to access the internet.
-    Please note, you must allow ingress/egress to the internet (0.0.0.0/0) via the Subnet's security group.
+    One of `certificate-authentication` or `federated-authentication`
   EOT
+  validation {
+    condition     = contains(["certificate-authentication", "federated-authentication"], var.authentication_type)
+    error_message = "VPN client authentication type must one be one of: certificate-authentication, federated-authentication."
+  }
 }
 
 variable "organization_name" {
@@ -134,4 +127,9 @@ variable "authorization_rules" {
     target_network_cidr  = string
   }))
   description = "List of objects describing the authorization rules for the client vpn"
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "ID of VPC to attach VPN to"
 }
