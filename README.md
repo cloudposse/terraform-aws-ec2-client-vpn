@@ -99,25 +99,65 @@ For automated tests of the complete example using [bats](https://github.com/bats
 (which tests and deploys the example on AWS), see [test](test).
 
 ```hcl
-module "example" {
-  source = "cloudposse/ec2-client-vpn"
+  module "vpc_target" {
+    source  = "cloudposse/vpc/aws"
+    version = "0.21.1"
 
-  region = var.region
+    cidr_block = "172.16.0.0/16"
 
-  client_cidr = var.client_cidr
+    context = module.this.context
+  }
 
-  aws_subnet_id = var.aws_subnet_id
+  module "vpc_client" {
+    source  = "cloudposse/vpc/aws"
+    version = "0.21.1"
 
-  organization_name = var.organization_name
+    cidr_block = "172.31.0.0/16"
 
-  aws_authorization_rule_target_cidr = var.aws_authorization_rule_target_cidr
+    context = module.this.context
+  }
 
-  logging_enabled = var.logging_enabled
+  module "subnets" {
+    source  = "cloudposse/dynamic-subnets/aws"
+    version = "0.39.3"
 
-  logs_retention = var.logs_retention
+    availability_zones   = var.availability_zones
+    vpc_id               = module.vpc_target.vpc_id
+    igw_id               = module.vpc_target.igw_id
+    cidr_block           = module.vpc_target.vpc_cidr_block
+    nat_gateway_enabled  = true
+    nat_instance_enabled = false
+    context              = module.this.context
+  }
 
-  internet_access_enabled = var.internet_access_enabled
-}
+
+  module "example" {
+    source = "cloudposse/ec2-client-vpn"
+
+    region = var.region
+
+    client_cidr = module.vpc_client.vpc_cidr_block
+
+    organization_name = var.organization_name
+
+    logging_enabled = var.logging_enabled
+
+    retention_in_days = var.retention_in_days
+
+    internet_access_enabled = var.internet_access_enabled
+
+    associated_subnets = module.subnets.private_subnet_ids
+
+    authorization_rules = var.authorization_rules
+
+    additional_routes = [
+      {
+        destination_cidr_block = "0.0.0.0/0"
+        description            = "Internet Route"
+        target_vpc_subnet_id   = element(module.subnets.private_subnet_ids, 0)
+      }
+    ]
+  }
 ```
 
 
@@ -149,7 +189,7 @@ Available targets:
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 2.0 |
-| <a name="requirement_awsutils"></a> [awsutils](#requirement\_awsutils) | >= 0.6.0 |
+| <a name="requirement_awsutils"></a> [awsutils](#requirement\_awsutils) | >= 0.5.0 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | >= 1.2 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | >= 2.0 |
 
@@ -158,7 +198,7 @@ Available targets:
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 2.0 |
-| <a name="provider_awsutils"></a> [awsutils](#provider\_awsutils) | >= 0.6.0 |
+| <a name="provider_awsutils"></a> [awsutils](#provider\_awsutils) | >= 0.5.0 |
 
 ## Modules
 
@@ -169,7 +209,7 @@ Available targets:
 | <a name="module_self_signed_cert_root"></a> [self\_signed\_cert\_root](#module\_self\_signed\_cert\_root) | cloudposse/ssm-tls-self-signed-cert/aws | n/a |
 | <a name="module_self_signed_cert_server"></a> [self\_signed\_cert\_server](#module\_self\_signed\_cert\_server) | cloudposse/ssm-tls-self-signed-cert/aws | n/a |
 | <a name="module_this"></a> [this](#module\_this) | cloudposse/label/null | 0.24.1 |
-| <a name="module_vpn_security_group"></a> [vpn\_security\_group](#module\_vpn\_security\_group) | cloudposse/security-group | n/a |
+| <a name="module_vpn_security_group"></a> [vpn\_security\_group](#module\_vpn\_security\_group) | cloudposse/security-group/aws | n/a |
 
 ## Resources
 
@@ -191,11 +231,13 @@ Available targets:
 | <a name="input_additional_tag_map"></a> [additional\_tag\_map](#input\_additional\_tag\_map) | Additional tags for appending to tags\_as\_list\_of\_maps. Not added to `tags`. | `map(string)` | `{}` | no |
 | <a name="input_associated_subnets"></a> [associated\_subnets](#input\_associated\_subnets) | List of subnets to associate with the VPN endpoint | `list(string)` | n/a | yes |
 | <a name="input_attributes"></a> [attributes](#input\_attributes) | Additional attributes (e.g. `1`) | `list(string)` | `[]` | no |
+| <a name="input_authentication_options"></a> [authentication\_options](#input\_authentication\_options) | Map of `authentication_options` value for dynamic `authentication_options` block in `aws_ec2_client_vpn_endpoint` resource definition. Used to define mulitple possible authentication options (mutual or federated). | <pre>map(object({<br>    type              = string<br>    saml_provider_arn = string<br>  }))</pre> | n/a | yes |
 | <a name="input_authentication_type"></a> [authentication\_type](#input\_authentication\_type) | One of `certificate-authentication` or `federated-authentication` | `string` | `"certificate-authentication"` | no |
 | <a name="input_authorization_rules"></a> [authorization\_rules](#input\_authorization\_rules) | List of objects describing the authorization rules for the client vpn | <pre>list(object({<br>    name                 = string<br>    access_group_id      = string<br>    authorize_all_groups = bool<br>    description          = string<br>    target_network_cidr  = string<br>  }))</pre> | n/a | yes |
 | <a name="input_basic_constraints"></a> [basic\_constraints](#input\_basic\_constraints) | The [basic constraints](https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.9) of the issued certificate.<br>Currently, only the `CA` constraint (which identifies whether the subject of the certificate is a CA) can be set.<br>Defaults to this certificate not being a CA. | <pre>object({<br>    ca = bool<br>  })</pre> | <pre>{<br>  "ca": false<br>}</pre> | no |
 | <a name="input_ca_common_name"></a> [ca\_common\_name](#input\_ca\_common\_name) | Unique Common Name for CA self-signed certificate | `string` | `null` | no |
 | <a name="input_client_cidr"></a> [client\_cidr](#input\_client\_cidr) | Network CIDR to use for clients | `any` | n/a | yes |
+| <a name="input_connection_log_options"></a> [connection\_log\_options](#input\_connection\_log\_options) | Map of `connection_log_options` value for dynamic `connection_log_options` block in `aws_ec2_client_vpn_endpoint` resource definition. Used to define when to disable/enable connection logging resources. | <pre>map(object({<br>    enabled               = bool<br>    cloudwatch_log_group  = string<br>    cloudwatch_log_stream = string<br>  }))</pre> | n/a | yes |
 | <a name="input_context"></a> [context](#input\_context) | Single object for setting entire context at once.<br>See description of individual variables for details.<br>Leave string and numeric variables as `null` to use default value.<br>Individual variable settings (non-null) override settings in context object,<br>except for attributes, tags, and additional\_tag\_map, which are merged. | `any` | <pre>{<br>  "additional_tag_map": {},<br>  "attributes": [],<br>  "delimiter": null,<br>  "enabled": true,<br>  "environment": null,<br>  "id_length_limit": null,<br>  "label_key_case": null,<br>  "label_order": [],<br>  "label_value_case": null,<br>  "name": null,<br>  "namespace": null,<br>  "regex_replace_chars": null,<br>  "stage": null,<br>  "tags": {}<br>}</pre> | no |
 | <a name="input_delimiter"></a> [delimiter](#input\_delimiter) | Delimiter to be used between `namespace`, `environment`, `stage`, `name` and `attributes`.<br>Defaults to `-` (hyphen). Set to `""` to use no delimiter at all. | `string` | `null` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources | `bool` | `null` | no |
