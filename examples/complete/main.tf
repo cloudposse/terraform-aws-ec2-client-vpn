@@ -39,6 +39,8 @@ module "example" {
 
   region = var.region
 
+  client_cidr = module.vpc_client.vpc_cidr_block
+
   organization_name = var.organization_name
 
   logging_enabled = var.logging_enabled

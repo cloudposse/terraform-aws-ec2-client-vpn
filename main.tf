@@ -76,25 +76,10 @@ module "self_signed_cert_server" {
   context = module.this.context
 }
 
-resource "aws_acm_certificate" "ca" {
-  private_key      = module.self_signed_cert_ca.certificate_key_path
-  certificate_body = module.self_signed_cert_ca.certificate_pem
-}
-
-resource "aws_acm_certificate" "root" {
-  private_key       = module.self_signed_cert_root.certificate_key_path
-  certificate_body  = module.self_signed_cert_root.certificate_pem
-  certificate_chain = module.self_signed_cert_ca.certificate_pem
-}
-
-resource "aws_acm_certificate" "server" {
-  private_key       = module.self_signed_cert_server.certificate_key_path
-  certificate_body  = module.self_signed_cert_server.certificate_pem
-  certificate_chain = module.self_signed_cert_ca.certificate_pem
-}
-
 module "cloudwatch_log" {
   source = "cloudposse/cloudwatch-logs/aws"
+
+  enabled = var.logging_enabled
 
   stream_names = [var.logging_stream_name]
 
@@ -179,7 +164,7 @@ resource "aws_ec2_client_vpn_network_association" "this" {
   subnet_id              = each.key
 
   security_groups = concat(
-    [aws_security_group.this.id],
+    [module.vpn_security_group.id],
     var.additional_security_groups
   )
 }
