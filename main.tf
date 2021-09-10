@@ -3,9 +3,16 @@ provider "awsutils" {
 }
 
 locals {
-  enabled           = module.this.enabled
-  mutual_enabled    = var.authentication_type == "certificate-authentication"
-  federated_enabled = var.authentication_type == "federated_authentication"
+  enabled                    = module.this.enabled
+  mutual_enabled             = var.authentication_type == "certificate-authentication"
+  federated_enabled          = var.authentication_type == "federated_authentication"
+  saml_provider_arn          = var.federated_enabled ? try(aws_iam_saml_provider.this[0].arn, var.saml_provider_arn) : null
+  root_certificate_chain_arn = var.mutual_enabled ? module.self_signed_cert_ca.certificate_pem : null
+  cloudwatch_log_group       = var.logging_enabled ? module.cloudwatch_log.log_group_name : null
+  cloudwatch_log_stream      = var.logging_enabled ? var.logging_stream_name : null
+  ca_common_name             = var.ca_common_name ? var.ca_common_name : module.this.id
+  root_common_name           = var.root_common_name ? var.root_common_name : module.this.id
+  server_common_name         = var.server_common_name ? var.server_common_name : module.this.id
 }
 
 module "self_signed_cert_ca" {
@@ -14,7 +21,7 @@ module "self_signed_cert_ca" {
   name = "self-signed-cert-ca"
 
   subject = {
-    common_name  = var.ca_common_name ? var.ca_common_name : module.this.id
+    common_name  = local.ca_common_name
     organization = var.organization_name
   }
 
@@ -36,7 +43,7 @@ module "self_signed_cert_root" {
   name = "self-signed-cert-root"
 
   subject = {
-    common_name  = var.root_common_name ? var.root_common_name : module.this.id
+    common_name  = local.root_common_name
     organization = var.organization_name
   }
 
@@ -59,7 +66,7 @@ module "self_signed_cert_server" {
   name = "self-signed-cert-server"
 
   subject = {
-    common_name  = var.server_common_name ? var.server_common_name : module.this.id
+    common_name  = local.server_common_name
     organization = var.organization_name
   }
 
@@ -86,23 +93,28 @@ module "cloudwatch_log" {
   context = module.this.context
 }
 
+resource "aws_iam_saml_provider" "default" {
+  count = var.saml_metadata_document != null ? 1 : 0
+
+  name                   = var.name
+  saml_metadata_document = var.saml_metadata_document
+}
+
 resource "aws_ec2_client_vpn_endpoint" "default" {
   description            = module.this.id
   server_certificate_arn = module.self_signed_cert_server.certificate_arn
   client_cidr_block      = var.client_cidr
 
-  dynamic "authentication_options" {
-    for_each = var.authentication_options
-    content {
-      type                       = each.key
-      root_certificate_chain_arn = each.value
-    }
+  authentication_options {
+    type                       = var.authentication_type
+    saml_provider_arn          = local.saml_provider_arn
+    root_certificate_chain_arn = local.root_certificate_chain_arn
   }
 
   connection_log_options {
     enabled               = var.logging_enabled
-    cloudwatch_log_group  = var.logging_enabled ? module.cloudwatch_log.log_group_name : null
-    cloudwatch_log_stream = var.logging_enabled ? var.logging_stream_name : null
+    cloudwatch_log_group  = local.cloudwatch_log_group
+    cloudwatch_log_stream = local.cloud_watch_log_stream
   }
 
   tags = module.this.tags
