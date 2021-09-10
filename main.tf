@@ -88,15 +88,15 @@ module "cloudwatch_log" {
 
 resource "aws_ec2_client_vpn_endpoint" "default" {
   description            = module.this.id
-  server_certificate_arn = aws_acm_certificate.server.arn
+  server_certificate_arn = module.self_signed_cert_server.certificate_arn
   client_cidr_block      = var.client_cidr
 
-  authentication_options = local.mutual_enabled ? {
-    type                       = var.authentication_type
-    root_certificate_chain_arn = aws_acm_certificate.root.arn
-    } : {
-    type              = var.authentication_type
-    saml_provider_arn = try(aws_iam_saml_provider.this[0].arn, var.saml_provider_arn)
+  dynamic "authentication_options" {
+    for_each = var.authentication_options
+    content {
+      type                       = each.key
+      root_certificate_chain_arn = each.value
+    }
   }
 
   connection_log_options {
@@ -117,7 +117,7 @@ resource "aws_ec2_client_vpn_authorization_rule" "internet_rule" {
 }
 
 module "vpn_security_group" {
-  source = "cloudposse/security-group"
+  source = "cloudposse/security-group/aws"
 
   attributes = ["simple"]
   rules = [

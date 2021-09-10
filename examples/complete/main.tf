@@ -6,7 +6,7 @@ module "vpc_target" {
   source  = "cloudposse/vpc/aws"
   version = "0.21.1"
 
-  cidr_block = "172.16.0.0/16"
+  cidr_block = var.target_cidr_block
 
   context = module.this.context
 }
@@ -15,7 +15,7 @@ module "vpc_client" {
   source  = "cloudposse/vpc/aws"
   version = "0.21.1"
 
-  cidr_block = "172.31.0.0/16"
+  cidr_block = var.client_cidr_block
 
   context = module.this.context
 }
@@ -45,9 +45,9 @@ module "example" {
 
   logging_enabled = var.logging_enabled
 
-  retention_in_days = var.retention_in_days
+  logging_stream_name = var.logging_stream_name
 
-  internet_access_enabled = var.internet_access_enabled
+  retention_in_days = var.retention_in_days
 
   associated_subnets = module.subnets.private_subnet_ids
 
@@ -60,4 +60,6 @@ module "example" {
       target_vpc_subnet_id   = element(module.subnets.private_subnet_ids, 0)
     }
   ]
+
+  vpc_id = module.vpc_target.vpc_id
 }

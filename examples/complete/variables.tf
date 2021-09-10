@@ -2,6 +2,22 @@ variable "region" {
   type = string
 }
 
+variable "availability_zones" {
+  type = list(string)
+}
+
+variable "target_cidr_block" {
+  type = string
+}
+
+variable "client_cidr_block" {
+  type = string
+}
+
+variable "logging_stream_name" {
+  type = string
+}
+
 variable "logging_enabled" {
   type = bool
 }
@@ -12,14 +28,6 @@ variable "retention_in_days" {
 
 variable "organization_name" {
   type = string
-}
-
-variable "additional_routes" {
-  type = list(object({
-    destination_cidr_block = string
-    description            = string
-    target_vpc_subnet_id   = string
-  }))
 }
 
 variable "additional_security_groups" {

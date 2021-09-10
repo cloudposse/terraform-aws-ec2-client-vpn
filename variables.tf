@@ -151,3 +151,24 @@ variable "server_common_name" {
   type        = string
   description = "Unique Common Name for Server self-signed certificate"
 }
+
+variable "authentication_options" {
+  type = map(object({
+    type              = string
+    saml_provider_arn = string
+  }))
+  description = <<-EOT
+  Map of `authentication_options` value for dynamic `authentication_options` block in `aws_ec2_client_vpn_endpoint` resource definition. Used to define mulitple possible authentication options (mutual or federated).
+  EOT
+}
+
+variable "connection_log_options" {
+  type = map(object({
+    enabled               = bool
+    cloudwatch_log_group  = string
+    cloudwatch_log_stream = string 
+  }))
+  description = <<-EOT
+  Map of `connection_log_options` value for dynamic `connection_log_options` block in `aws_ec2_client_vpn_endpoint` resource definition. Used to define when to disable/enable connection logging resources.
+  EOT
+}
