@@ -25,5 +25,5 @@ authorization_rules = [
     description          = "Allows routing to the internet"
     target_network_cidr  = "0.0.0.0/0"
   },
-  
+
 ]
