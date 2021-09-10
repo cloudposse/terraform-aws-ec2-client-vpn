@@ -14,7 +14,7 @@ module "self_signed_cert_ca" {
   name = "self-signed-cert-ca"
 
   subject = {
-    common_name  = module.this.id
+    common_name  = var.ca_common_name ? var.ca_common_name : module.this.id
     organization = var.organization_name
   }
 
@@ -36,7 +36,7 @@ module "self_signed_cert_root" {
   name = "self-signed-cert-root"
 
   subject = {
-    common_name  = module.this.id
+    common_name  = var.root_common_name ? var.root_common_name : module.this.id
     organization = var.organization_name
   }
 
@@ -59,7 +59,7 @@ module "self_signed_cert_server" {
   name = "self-signed-cert-server"
 
   subject = {
-    common_name  = module.this.id
+    common_name  = var.server_common_name ? var.server_common_name : module.this.id
     organization = var.organization_name
   }
 
@@ -108,31 +108,12 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   tags = module.this.tags
 }
 
-resource "aws_ec2_client_vpn_network_association" "default" {
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
-  subnet_id              = var.aws_subnet_id
-}
-
-resource "aws_ec2_client_vpn_authorization_rule" "internal" {
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
-  target_network_cidr    = var.aws_authorization_rule_target_cidr
-  authorize_all_groups   = true
-}
-
 resource "aws_ec2_client_vpn_authorization_rule" "internet_rule" {
   count = local.enabled && var.internet_access_enabled ? 1 : 0
 
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
   target_network_cidr    = "0.0.0.0/0"
   authorize_all_groups   = true
-}
-
-resource "aws_ec2_client_vpn_route" "internet_route" {
-  count = local.enabled && var.internet_access_enabled ? 1 : 0
-
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
-  destination_cidr_block = "0.0.0.0/0"
-  target_vpc_subnet_id   = aws_ec2_client_vpn_network_association.default.subnet_id
 }
 
 module "vpn_security_group" {

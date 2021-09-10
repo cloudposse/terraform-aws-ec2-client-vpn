@@ -1,3 +1,8 @@
+output "vpn_endpoint_arn" {
+  value       = aws_ec2_client_vpn_endpoint.default.arn
+  description = "The ARN of the Client VPN Endpoint Connection."
+}
+
 output "vpn_endpoint_id" {
   value       = aws_ec2_client_vpn_endpoint.default.id
   description = "The ID of the Client VPN Endpoint Connection."

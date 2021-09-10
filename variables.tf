@@ -133,3 +133,21 @@ variable "vpc_id" {
   type        = string
   description = "ID of VPC to attach VPN to"
 }
+
+variable "ca_common_name" {
+  default     = null
+  type        = string
+  description = "Unique Common Name for CA self-signed certificate"
+}
+
+variable "root_common_name" {
+  default     = null
+  type        = string
+  description = "Unique Common Name for Root self-signed certificate"
+}
+
+variable "server_common_name" {
+  default     = null
+  type        = string
+  description = "Unique Common Name for Server self-signed certificate"
+}
