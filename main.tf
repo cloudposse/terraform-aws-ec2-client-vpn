@@ -5,7 +5,7 @@ provider "awsutils" {
 locals {
   enabled                    = module.this.enabled
   mutual_enabled             = var.authentication_type == "certificate-authentication"
-  federated_enabled          = var.authentication_type == "federated_authentication"
+  federated_enabled          = var.authentication_type == "federated-authentication"
   saml_provider_arn          = var.federated_enabled ? try(aws_iam_saml_provider.this[0].arn, var.saml_provider_arn) : null
   root_certificate_chain_arn = var.mutual_enabled ? module.self_signed_cert_ca.certificate_pem : null
   cloudwatch_log_group       = var.logging_enabled ? module.cloudwatch_log.log_group_name : null

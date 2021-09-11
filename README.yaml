@@ -57,7 +57,7 @@ references:
 
 # Short description of this project
 description: |-
-  The `terraform-aws-ec2-client-vpn` project provides for ec2 client vpn infrastructure.
+  The `terraform-aws-ec2-client-vpn` project provides for ec2 client vpn infrastructure. AWS Client VPN is a managed client-based VPN service based on OpenVPN that enables you to securely access your AWS resources and resources in your on-premises network. With Client VPN, you can access your resources from any location using [any OpenVPN-based VPN client](https://docs.aws.amazon.com/vpn/latest/clientvpn-user/connect-aws-client-vpn-connect.html).
 
 # Introduction to the project
 #introduction: |-

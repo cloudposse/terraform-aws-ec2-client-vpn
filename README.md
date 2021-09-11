@@ -28,7 +28,7 @@
 
 -->
 
-The `terraform-aws-ec2-client-vpn` project provides for ec2 client vpn infrastructure.
+The `terraform-aws-ec2-client-vpn` project provides for ec2 client vpn infrastructure. AWS Client VPN is a managed client-based VPN service based on OpenVPN that enables you to securely access your AWS resources and resources in your on-premises network. With Client VPN, you can access your resources from any location using [any OpenVPN-based VPN client](https://docs.aws.amazon.com/vpn/latest/clientvpn-user/connect-aws-client-vpn-connect.html).
 
 ---
 
@@ -220,6 +220,7 @@ Available targets:
 | [aws_ec2_client_vpn_endpoint.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_client_vpn_endpoint) | resource |
 | [aws_ec2_client_vpn_network_association.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_client_vpn_network_association) | resource |
 | [aws_ec2_client_vpn_route.additional](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_client_vpn_route) | resource |
+| [aws_iam_saml_provider.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_saml_provider) | resource |
 | [awsutils_ec2_client_vpn_export_client_config.default](https://registry.terraform.io/providers/cloudposse/awsutils/latest/docs/data-sources/ec2_client_vpn_export_client_config) | data source |
 
 ## Inputs
@@ -231,13 +232,13 @@ Available targets:
 | <a name="input_additional_tag_map"></a> [additional\_tag\_map](#input\_additional\_tag\_map) | Additional tags for appending to tags\_as\_list\_of\_maps. Not added to `tags`. | `map(string)` | `{}` | no |
 | <a name="input_associated_subnets"></a> [associated\_subnets](#input\_associated\_subnets) | List of subnets to associate with the VPN endpoint | `list(string)` | n/a | yes |
 | <a name="input_attributes"></a> [attributes](#input\_attributes) | Additional attributes (e.g. `1`) | `list(string)` | `[]` | no |
-| <a name="input_authentication_options"></a> [authentication\_options](#input\_authentication\_options) | Map of `authentication_options` value for dynamic `authentication_options` block in `aws_ec2_client_vpn_endpoint` resource definition. Used to define mulitple possible authentication options (mutual or federated). | <pre>map(object({<br>    type              = string<br>    saml_provider_arn = string<br>  }))</pre> | n/a | yes |
+| <a name="input_authentication_options"></a> [authentication\_options](#input\_authentication\_options) | Map of `authentication_options` value for dynamic `authentication_options` block in `aws_ec2_client_vpn_endpoint` resource definition. Used to define mulitple possible authentication options (mutual or federated). | `map` | n/a | yes |
 | <a name="input_authentication_type"></a> [authentication\_type](#input\_authentication\_type) | One of `certificate-authentication` or `federated-authentication` | `string` | `"certificate-authentication"` | no |
 | <a name="input_authorization_rules"></a> [authorization\_rules](#input\_authorization\_rules) | List of objects describing the authorization rules for the client vpn | <pre>list(object({<br>    name                 = string<br>    access_group_id      = string<br>    authorize_all_groups = bool<br>    description          = string<br>    target_network_cidr  = string<br>  }))</pre> | n/a | yes |
 | <a name="input_basic_constraints"></a> [basic\_constraints](#input\_basic\_constraints) | The [basic constraints](https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.9) of the issued certificate.<br>Currently, only the `CA` constraint (which identifies whether the subject of the certificate is a CA) can be set.<br>Defaults to this certificate not being a CA. | <pre>object({<br>    ca = bool<br>  })</pre> | <pre>{<br>  "ca": false<br>}</pre> | no |
 | <a name="input_ca_common_name"></a> [ca\_common\_name](#input\_ca\_common\_name) | Unique Common Name for CA self-signed certificate | `string` | `null` | no |
 | <a name="input_client_cidr"></a> [client\_cidr](#input\_client\_cidr) | Network CIDR to use for clients | `any` | n/a | yes |
-| <a name="input_connection_log_options"></a> [connection\_log\_options](#input\_connection\_log\_options) | Map of `connection_log_options` value for dynamic `connection_log_options` block in `aws_ec2_client_vpn_endpoint` resource definition. Used to define when to disable/enable connection logging resources. | <pre>map(object({<br>    enabled               = bool<br>    cloudwatch_log_group  = string<br>    cloudwatch_log_stream = string <br>  }))</pre> | n/a | yes |
+| <a name="input_connection_log_options"></a> [connection\_log\_options](#input\_connection\_log\_options) | Map of `connection_log_options` value for dynamic `connection_log_options` block in `aws_ec2_client_vpn_endpoint` resource definition. Used to define when to disable/enable connection logging resources. | `map` | n/a | yes |
 | <a name="input_context"></a> [context](#input\_context) | Single object for setting entire context at once.<br>See description of individual variables for details.<br>Leave string and numeric variables as `null` to use default value.<br>Individual variable settings (non-null) override settings in context object,<br>except for attributes, tags, and additional\_tag\_map, which are merged. | `any` | <pre>{<br>  "additional_tag_map": {},<br>  "attributes": [],<br>  "delimiter": null,<br>  "enabled": true,<br>  "environment": null,<br>  "id_length_limit": null,<br>  "label_key_case": null,<br>  "label_order": [],<br>  "label_value_case": null,<br>  "name": null,<br>  "namespace": null,<br>  "regex_replace_chars": null,<br>  "stage": null,<br>  "tags": {}<br>}</pre> | no |
 | <a name="input_delimiter"></a> [delimiter](#input\_delimiter) | Delimiter to be used between `namespace`, `environment`, `stage`, `name` and `attributes`.<br>Defaults to `-` (hyphen). Set to `""` to use no delimiter at all. | `string` | `null` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources | `bool` | `null` | no |
