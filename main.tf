@@ -120,18 +120,9 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   tags = module.this.tags
 }
 
-resource "aws_ec2_client_vpn_authorization_rule" "internet_rule" {
-  count = local.enabled && var.internet_access_enabled ? 1 : 0
-
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
-  target_network_cidr    = "0.0.0.0/0"
-  authorize_all_groups   = true
-}
-
 module "vpn_security_group" {
   source = "cloudposse/security-group/aws"
 
-  attributes = ["simple"]
   rules = [
     {
       key         = "vpn-self"
@@ -150,7 +141,7 @@ module "vpn_security_group" {
 }
 
 resource "aws_ec2_client_vpn_network_association" "default" {
-  for_each = toset(var.associated_subnets) #avoid ordering errors by using a for_each instead of count
+  for_each = local.enabled ? toset(var.associated_subnets) : []
 
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
   subnet_id              = each.key
@@ -161,8 +152,8 @@ resource "aws_ec2_client_vpn_network_association" "default" {
   )
 }
 
-resource "aws_ec2_client_vpn_authorization_rule" "rules" {
-  count = length(var.authorization_rules)
+resource "aws_ec2_client_vpn_authorization_rule" "default" {
+  count = local.enabled ? length(var.authorization_rules) : 0
 
   access_group_id        = var.authorization_rules[count.index].access_group_id
   authorize_all_groups   = var.authorization_rules[count.index].authorize_all_groups
@@ -172,8 +163,8 @@ resource "aws_ec2_client_vpn_authorization_rule" "rules" {
 
 }
 
-resource "aws_ec2_client_vpn_route" "additional" {
-  count = length(var.additional_routes)
+resource "aws_ec2_client_vpn_route" "default" {
+  count = local.enabled ? length(var.additional_routes) : 0
 
   description            = try(var.additional_routes[count.index].description, null)
   destination_cidr_block = var.additional_routes[count.index].destination_cidr_block

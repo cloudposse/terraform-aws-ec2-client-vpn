@@ -88,7 +88,7 @@ variable "saml_provider_arn" {
     condition = (
       var.saml_provider_arn == null ||
       try(length(regexall(
-        "^arn:aws:iam::(?P<account_id>\\d{12}):saml-provider/(?P<provider_name>[\\w+=,\\.@-]+)$",
+        "^arn:[^:]+:iam::(?P<account_id>\\d{12}):saml-provider/(?P<provider_name>[\\w+=,\\.@-]+)$",
         var.saml_provider_arn
         )) > 0,
         false
