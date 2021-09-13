@@ -6,8 +6,8 @@ locals {
   enabled                    = module.this.enabled
   mutual_enabled             = var.authentication_type == "certificate-authentication"
   federated_enabled          = var.authentication_type == "federated-authentication"
-  saml_provider_arn          = var.federated_enabled ? try(aws_iam_saml_provider.this[0].arn, var.saml_provider_arn) : null
-  root_certificate_chain_arn = var.mutual_enabled ? module.self_signed_cert_ca.certificate_pem : null
+  saml_provider_arn          = local.federated_enabled ? try(aws_iam_saml_provider.default.*.arn, var.saml_provider_arn) : null
+  root_certificate_chain_arn = local.mutual_enabled ? module.self_signed_cert_ca.certificate_pem : null
   cloudwatch_log_group       = var.logging_enabled ? module.cloudwatch_log.log_group_name : null
   cloudwatch_log_stream      = var.logging_enabled ? var.logging_stream_name : null
   ca_common_name             = var.ca_common_name ? var.ca_common_name : module.this.id
@@ -114,7 +114,7 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   connection_log_options {
     enabled               = var.logging_enabled
     cloudwatch_log_group  = local.cloudwatch_log_group
-    cloudwatch_log_stream = local.cloud_watch_log_stream
+    cloudwatch_log_stream = local.cloudwatch_log_stream
   }
 
   tags = module.this.tags
@@ -144,15 +144,15 @@ module "vpn_security_group" {
     },
   ]
 
-  vpc_id = module.vpc.vpc_id
+  vpc_id = var.vpc_id
 
   context = module.this.context
 }
 
-resource "aws_ec2_client_vpn_network_association" "this" {
+resource "aws_ec2_client_vpn_network_association" "default" {
   for_each = toset(var.associated_subnets) #avoid ordering errors by using a for_each instead of count
 
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.this.id
+  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
   subnet_id              = each.key
 
   security_groups = concat(
@@ -166,7 +166,7 @@ resource "aws_ec2_client_vpn_authorization_rule" "rules" {
 
   access_group_id        = var.authorization_rules[count.index].access_group_id
   authorize_all_groups   = var.authorization_rules[count.index].authorize_all_groups
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.this.id
+  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
   description            = var.authorization_rules[count.index].description
   target_network_cidr    = var.authorization_rules[count.index].target_network_cidr
 
@@ -177,7 +177,7 @@ resource "aws_ec2_client_vpn_route" "additional" {
 
   description            = try(var.additional_routes[count.index].description, null)
   destination_cidr_block = var.additional_routes[count.index].destination_cidr_block
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.this.id
+  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
   target_vpc_subnet_id   = var.additional_routes[count.index].target_vpc_subnet_id
 }
 
