@@ -18,7 +18,7 @@ logging_enabled = false
 
 retention_in_days = 0
 
-organization_name = "Dewey, Cheatum, and Howe Penny Stocks"
+organization_name = "Cloud Posse"
 
 availability_zones = ["us-east-2a", "us-east-2b"]
 
