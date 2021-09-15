@@ -78,7 +78,7 @@ variable "saml_metadata_document" {
 }
 
 variable "saml_provider_arn" {
-  default     = null
+  default     = ""
   description = "Optional SAML provider ARN. Must include this or `saml_metadata_document`"
   type        = string
 
