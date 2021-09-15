@@ -5,7 +5,7 @@
 #
 
 # Name of this project
-name: terraform-example-module
+name: terraform-aws-ec2-client-vpn
 
 # Logo for this project
 #logo: docs/logo.png
@@ -20,7 +20,7 @@ copyrights:
     year: "2020"
 
 # Canonical GitHub repo
-github_repo: cloudposse/terraform-example-module
+github_repo: cloudposse/terraform-aws-ec2-client-vpn
 
 # Badges to display
 badges:
@@ -36,29 +36,25 @@ badges:
 
 # List any related terraform modules that this module may be used with or that this module depends on.
 related:
-  - name: "terraform-null-label"
-    description: "Terraform module designed to generate consistent names and tags for resources. Use terraform-null-label to implement a strict naming convention."
-    url: "https://github.com/cloudposse/terraform-null-label"
+  - name: "terraform-aws-components"
+    description: "Repository collection of aws components."
+    url: "https://github.com/cloudposse/terraform-aws-components"
+  - name: "terraform-aws-ssm-tls-self-signed-cert"
+    description: "This module creates a self-signed certificate and writes it alongside with its key to SSM Parameter Store (or alternatively AWS Secrets Manager). Used to store VPN certificates in ACM."
+    url: "https://github.com/cloudposse/terraform-aws-ssm-tls-self-signed-cert"
+  - name: "terraform-provider-awsutils"
+    description: "Terraform provider for performing various tasks that cannot be performed with the official AWS Terraform Provider from Hashicorp. Used to export vpn client configuration."
+    url: "https://github.com/cloudposse/terraform-provider-awsutils"
 
 # List any resources helpful for someone to get started. For example, link to the hashicorp documentation or AWS documentation.
 references:
-  - name: "Terraform Standard Module Structure"
-    description: "HashiCorp's standard module structure is a file and directory layout we recommend for reusable modules distributed in separate repositories."
-    url: "https://www.terraform.io/docs/modules/index.html#standard-module-structure"
-  - name: "Terraform Module Requirements"
-    description: "HashiCorp's guidance on all the requirements for publishing a module. Meeting the requirements for publishing a module is extremely easy."
-    url: "https://www.terraform.io/docs/registry/modules/publish.html#requirements"
-  - name: "Terraform `random_integer` Resource"
-    description: "The resource random_integer generates random values from a given range, described by the min and max attributes of a given resource."
-    url: "https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer"
-  - name: "Terraform Version Pinning"
-    description: "The required_version setting can be used to constrain which versions of the Terraform CLI can be used with your configuration"
-    url: "https://www.terraform.io/docs/configuration/terraform.html#specifying-a-required-terraform-version"
+  - name: OpenVPN Clients
+    description: "Any OpenVPN client should be compatible with the AWS Client VPN."
+    url: https://docs.aws.amazon.com/vpn/latest/clientvpn-user/connect-aws-client-vpn-connect.html
 
 # Short description of this project
 description: |-
-  This is `terraform-example-module` project provides all the scaffolding for a typical well-built Cloud Posse module. It's a template repository you can
-  use when creating new repositories.
+  The `terraform-aws-ec2-client-vpn` project provides for ec2 client vpn infrastructure. AWS Client VPN is a managed client-based VPN service based on OpenVPN that enables you to securely access your AWS resources and resources in your on-premises network. With Client VPN, you can access your resources from any location using [any OpenVPN-based VPN client](https://docs.aws.amazon.com/vpn/latest/clientvpn-user/connect-aws-client-vpn-connect.html).
 
 # Introduction to the project
 #introduction: |-
@@ -72,16 +68,71 @@ usage: |-
   (which tests and deploys the example on AWS), see [test](test).
 
   ```hcl
-  module "example" {
-    source = "https://github.com/cloudposse/terraform-example-module.git?ref=master"
-    example = "Hello world!"
-  }
+    module "vpc_target" {
+      source  = "cloudposse/vpc/aws"
+      version = "0.21.1"
+
+      cidr_block = "172.16.0.0/16"
+
+      context = module.this.context
+    }
+
+    module "vpc_client" {
+      source  = "cloudposse/vpc/aws"
+      version = "0.21.1"
+
+      cidr_block = "172.31.0.0/16"
+
+      context = module.this.context
+    }
+
+    module "subnets" {
+      source  = "cloudposse/dynamic-subnets/aws"
+      version = "0.39.3"
+
+      availability_zones   = var.availability_zones
+      vpc_id               = module.vpc_target.vpc_id
+      igw_id               = module.vpc_target.igw_id
+      cidr_block           = module.vpc_target.vpc_cidr_block
+      nat_gateway_enabled  = true
+      nat_instance_enabled = false
+      context              = module.this.context
+    }
+
+
+    module "example" {
+      source = "cloudposse/ec2-client-vpn"
+
+      region = var.region
+
+      client_cidr = module.vpc_client.vpc_cidr_block
+
+      organization_name = var.organization_name
+
+      logging_enabled = var.logging_enabled
+
+      retention_in_days = var.retention_in_days
+
+      internet_access_enabled = var.internet_access_enabled
+
+      associated_subnets = module.subnets.private_subnet_ids
+
+      authorization_rules = var.authorization_rules
+
+      additional_routes = [
+        {
+          destination_cidr_block = "0.0.0.0/0"
+          description            = "Internet Route"
+          target_vpc_subnet_id   = element(module.subnets.private_subnet_ids, 0)
+        }
+      ]
+    }
   ```
 
 # Example usage
 examples: |-
   Here is an example of using this module:
-  - [`examples/complete`](https://github.com/cloudposse/terraform-example-module/) - complete example of using this module
+  - [`examples/complete`](https://github.com/cloudposse/terraform-aws-ec2-client-vpn/examples/complete/) - complete example of using this module
 
 # How to get started quickly
 #quickstart: |-
@@ -96,3 +147,5 @@ include:
 contributors:
   - name: "Erik Osterman"
     github: "osterman"
+  - name: "Leo Przybylski"
+    github: "r351574nc3"
