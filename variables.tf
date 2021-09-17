@@ -78,7 +78,7 @@ variable "saml_metadata_document" {
 }
 
 variable "saml_provider_arn" {
-  default     = ""
+  default     = null
   description = "Optional SAML provider ARN. Must include this or `saml_metadata_document`"
   type        = string
 
@@ -88,7 +88,7 @@ variable "saml_provider_arn" {
     condition = (
       var.saml_provider_arn == null ||
       try(length(regexall(
-        "^arn:[^:]+:iam::(?P<account_id>\\d{12}):saml-provider/(?P<provider_name>[\\w+=,\\.@-]+)$",
+        "^arn:[^:]+:iam::(?P<account_id>\\d{12}):saml-provider\\/(?P<provider_name>[\\w+=,\\.@-]+)$",
         var.saml_provider_arn
         )) > 0,
         false
