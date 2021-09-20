@@ -4,15 +4,16 @@ provider "awsutils" {
 
 locals {
   enabled                    = module.this.enabled
+  certificate_backends       = ["ACM"]
   mutual_enabled             = var.authentication_type == "certificate-authentication"
   federated_enabled          = var.authentication_type == "federated-authentication"
   saml_provider_arn          = local.federated_enabled ? try(join("", aws_iam_saml_provider.default.*.arn), var.saml_provider_arn) : null
   root_certificate_chain_arn = local.mutual_enabled ? module.self_signed_cert_root.certificate_arn : null
   cloudwatch_log_group       = var.logging_enabled ? module.cloudwatch_log.log_group_name : null
   cloudwatch_log_stream      = var.logging_enabled ? var.logging_stream_name : null
-  ca_common_name             = var.ca_common_name != null ? var.ca_common_name : module.this.id
-  root_common_name           = var.root_common_name != null ? var.root_common_name : module.this.id
-  server_common_name         = var.server_common_name != null ? var.server_common_name : module.this.id
+  ca_common_name             = var.ca_common_name != null ? var.ca_common_name : "${module.this.id}.vpn.ca"
+  root_common_name           = var.root_common_name != null ? var.root_common_name : "${module.this.id}.vpn.client"
+  server_common_name         = var.server_common_name != null ? var.server_common_name : "${module.this.id}.vpn.server"
 }
 
 module "self_signed_cert_ca" {
@@ -34,6 +35,8 @@ module "self_signed_cert_ca" {
     "crl_signing",
     "cert_signing",
   ]
+
+  certificate_backends = local.certificate_backends
 
   context = module.this.context
 }
@@ -59,6 +62,8 @@ module "self_signed_cert_root" {
     "server_auth"
   ]
 
+  certificate_backends = local.certificate_backends
+
   context = module.this.context
 }
 
@@ -81,6 +86,8 @@ module "self_signed_cert_server" {
     "digital_signature",
     "server_auth"
   ]
+
+  certificate_backends = local.certificate_backends
 
   context = module.this.context
 }
@@ -120,6 +127,10 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   }
 
   tags = module.this.tags
+
+  depends_on = [
+    module.self_signed_cert_server
+  ]
 
 }
 

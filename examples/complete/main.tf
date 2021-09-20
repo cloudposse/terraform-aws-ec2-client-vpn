@@ -39,6 +39,11 @@ module "example" {
 
   region = var.region
 
+  ca_common_name     = var.ca_common_name
+  root_common_name   = var.root_common_name
+  server_common_name = var.server_common_name
+
+
   client_cidr = module.vpc_client.vpc_cidr_block
 
   organization_name = var.organization_name

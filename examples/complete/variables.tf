@@ -43,3 +43,15 @@ variable "authorization_rules" {
     target_network_cidr  = string
   }))
 }
+
+variable "ca_common_name" {
+  type = string
+}
+
+variable "root_common_name" {
+  type = string
+}
+
+variable "server_common_name" {
+  type = string
+}
