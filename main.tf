@@ -144,7 +144,7 @@ module "vpn_security_group" {
 }
 
 resource "aws_ec2_client_vpn_network_association" "default" {
-  for_each = local.enabled ? toset(var.associated_subnets) : []
+  for_each = local.enabled ? var.associated_subnets : []
 
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
   subnet_id              = each.key
@@ -179,7 +179,6 @@ data "awsutils_ec2_client_vpn_export_client_config" "default" {
   id = aws_ec2_client_vpn_endpoint.default.id
 
   depends_on = [
-    aws_ec2_client_vpn_endpoint.default,
-    aws_ec2_client_vpn_network_association.default,
+    aws_ec2_client_vpn_endpoint.default
   ]
 }
