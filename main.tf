@@ -144,10 +144,10 @@ module "vpn_security_group" {
 }
 
 resource "aws_ec2_client_vpn_network_association" "default" {
-  for_each = local.enabled ? var.associated_subnets : []
+  count = local.enabled ? length(var.associated_subnets) : 0
 
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
-  subnet_id              = each.key
+  subnet_id              = var.associated_subnets[count.index]
 
   security_groups = concat(
     [module.vpn_security_group.id],
