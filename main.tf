@@ -120,6 +120,7 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   }
 
   tags = module.this.tags
+
 }
 
 module "vpn_security_group" {
