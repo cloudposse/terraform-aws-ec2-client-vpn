@@ -1,12 +1,3 @@
-provider "aws" {
-  region = var.region
-}
-
-provider "awsutils" {
-  region = var.region
-}
-
-
 locals {
   additional_routes = [for route in var.additional_routes : {
     destination_cidr_block = route.destination_cidr_block
@@ -56,7 +47,6 @@ module "example" {
   root_common_name   = var.root_common_name
   server_common_name = var.server_common_name
 
-
   client_cidr = module.vpc_client.vpc_cidr_block
 
   organization_name = var.organization_name
@@ -72,6 +62,8 @@ module "example" {
   authorization_rules = var.authorization_rules
 
   additional_routes = local.additional_routes
+
+  additional_security_groups = var.additional_security_groups
 
   vpc_id = module.vpc_target.vpc_id
 }
