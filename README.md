@@ -189,7 +189,7 @@ Available targets:
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.0 |
-| <a name="requirement_awsutils"></a> [awsutils](#requirement\_awsutils) | >= 0.7.0 |
+| <a name="requirement_awsutils"></a> [awsutils](#requirement\_awsutils) | >= 0.8.0 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | >= 1.2 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | >= 2.0 |
 
@@ -198,7 +198,7 @@ Available targets:
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.0 |
-| <a name="provider_awsutils"></a> [awsutils](#provider\_awsutils) | >= 0.7.0 |
+| <a name="provider_awsutils"></a> [awsutils](#provider\_awsutils) | >= 0.8.0 |
 
 ## Modules
 

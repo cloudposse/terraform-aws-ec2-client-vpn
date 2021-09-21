@@ -8,7 +8,7 @@ terraform {
     }
     awsutils = {
       source  = "cloudposse/awsutils"
-      version = ">= 0.7.0"
+      version = ">= 0.8.0"
     }
     local = {
       source  = "hashicorp/local"
