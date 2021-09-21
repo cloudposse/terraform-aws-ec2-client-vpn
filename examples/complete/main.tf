@@ -2,6 +2,19 @@ provider "aws" {
   region = var.region
 }
 
+provider "awsutils" {
+  region = var.region
+}
+
+
+locals {
+  additional_routes = [for route in var.additional_routes : {
+    destination_cidr_block = route.destination_cidr_block
+    description            = route.description
+    target_vpc_subnet_id   = element(module.subnets.private_subnet_ids, 0)
+  }]
+}
+
 module "vpc_target" {
   source  = "cloudposse/vpc/aws"
   version = "0.21.1"
@@ -58,13 +71,7 @@ module "example" {
 
   authorization_rules = var.authorization_rules
 
-  additional_routes = [
-    {
-      destination_cidr_block = "0.0.0.0/0"
-      description            = "Internet Route"
-      target_vpc_subnet_id   = element(module.subnets.private_subnet_ids, 0)
-    }
-  ]
+  additional_routes = local.additional_routes
 
   vpc_id = module.vpc_target.vpc_id
 }

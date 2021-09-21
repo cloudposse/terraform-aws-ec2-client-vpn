@@ -44,6 +44,16 @@ variable "authorization_rules" {
   }))
 }
 
+variable "additional_routes" {
+  default = []
+
+  type = list(object({
+    destination_cidr_block = string
+    description            = string
+  }))
+}
+
+
 variable "ca_common_name" {
   type = string
 }

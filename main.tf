@@ -185,6 +185,10 @@ resource "aws_ec2_client_vpn_route" "default" {
   destination_cidr_block = var.additional_routes[count.index].destination_cidr_block
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
   target_vpc_subnet_id   = var.additional_routes[count.index].target_vpc_subnet_id
+
+  depends_on = [
+    aws_ec2_client_vpn_network_association.default
+  ]
 }
 
 data "awsutils_ec2_client_vpn_export_client_config" "default" {
