@@ -37,7 +37,6 @@ module "subnets" {
   context              = module.this.context
 }
 
-
 module "example" {
   source = "../../"
 

@@ -1,40 +1,50 @@
 variable "region" {
+  description = "There are a number of region dependent resources. This makes sure everything is in the same region."
   type = string
 }
 
 variable "availability_zones" {
+  description = "VPC availability zones"
   type = list(string)
 }
 
 variable "target_cidr_block" {
+  description = "cidr for the target VPC that is created"
   type = string
 }
 
 variable "client_cidr_block" {
+  description = "Network CIDR to use for clients"
   type = string
 }
 
 variable "logging_stream_name" {
+  description = "Names of stream used for logging"
   type = string
 }
 
 variable "logging_enabled" {
+  description = "Enables or disables Client VPN Cloudwatch logging."
   type = bool
 }
 
 variable "retention_in_days" {
+  description = "Number of days you want to retain log events in the log group"
   type = number
 }
 
 variable "organization_name" {
   type = string
+  description = "Name of organization to use in private certificate"
 }
 
 variable "additional_security_groups" {
+  description = "List of security groups to attach to the client vpn network associations"
   type = list(string)
 }
 
 variable "authorization_rules" {
+  description = "List of objects describing the authorization rules for the client vpn"
   type = list(object({
     name                 = string
     access_group_id      = string
@@ -46,6 +56,7 @@ variable "authorization_rules" {
 
 variable "additional_routes" {
   default = []
+  description = "A list of additional routes that should be attached to the Client VPN endpoint"
 
   type = list(object({
     destination_cidr_block = string
@@ -53,15 +64,17 @@ variable "additional_routes" {
   }))
 }
 
-
 variable "ca_common_name" {
-  type = string
+  type        = string
+  description = "Unique Common Name for CA self-signed certificate"
 }
 
 variable "root_common_name" {
-  type = string
+  type        = string
+  description = "Unique Common Name for Root self-signed certificate"
 }
 
 variable "server_common_name" {
-  type = string
+  type        = string
+  description = "Unique Common Name for Server self-signed certificate"
 }
