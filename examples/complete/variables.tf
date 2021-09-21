@@ -1,46 +1,46 @@
 variable "region" {
   description = "There are a number of region dependent resources. This makes sure everything is in the same region."
-  type = string
+  type        = string
 }
 
 variable "availability_zones" {
   description = "VPC availability zones"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "target_cidr_block" {
   description = "cidr for the target VPC that is created"
-  type = string
+  type        = string
 }
 
 variable "client_cidr_block" {
   description = "Network CIDR to use for clients"
-  type = string
+  type        = string
 }
 
 variable "logging_stream_name" {
   description = "Names of stream used for logging"
-  type = string
+  type        = string
 }
 
 variable "logging_enabled" {
   description = "Enables or disables Client VPN Cloudwatch logging."
-  type = bool
+  type        = bool
 }
 
 variable "retention_in_days" {
   description = "Number of days you want to retain log events in the log group"
-  type = number
+  type        = number
 }
 
 variable "organization_name" {
-  type = string
+  type        = string
   description = "Name of organization to use in private certificate"
 }
 
 variable "additional_security_groups" {
   description = "List of security groups to attach to the client vpn network associations"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "authorization_rules" {
@@ -55,7 +55,7 @@ variable "authorization_rules" {
 }
 
 variable "additional_routes" {
-  default = []
+  default     = []
   description = "A list of additional routes that should be attached to the Client VPN endpoint"
 
   type = list(object({
