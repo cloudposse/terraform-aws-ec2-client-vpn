@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1"
+  required_version = ">= 0.14"
 
   required_providers {
     aws = {
@@ -8,7 +8,7 @@ terraform {
     }
     awsutils = {
       source  = "cloudposse/awsutils"
-      version = ">= 0.7.0"
+      version = ">= 0.8.0"
     }
     local = {
       source  = "hashicorp/local"
@@ -17,9 +17,6 @@ terraform {
     null = {
       source  = "hashicorp/null"
       version = ">= 2.0"
-    }
-    tls = {
-      source = "hashicorp/tls"
     }
   }
 }

@@ -2,6 +2,17 @@ region = "us-east-2"
 
 namespace = "eg"
 
+ca_common_name     = "vpn.internal.cloudposse.com"
+root_common_name   = "vpn-client.internal.cloudposse.com"
+server_common_name = "vpn-server.internal.cloudposse.com"
+
+additional_routes = [
+  {
+    destination_cidr_block = "0.0.0.0/0"
+    description            = "Internet Route"
+  }
+]
+
 client_cidr_block = "172.16.0.0/16"
 
 target_cidr_block = "172.31.0.0/16"

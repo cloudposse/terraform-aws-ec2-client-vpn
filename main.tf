@@ -4,19 +4,21 @@ provider "awsutils" {
 
 locals {
   enabled                    = module.this.enabled
+  certificate_backends       = ["ACM"]
   mutual_enabled             = var.authentication_type == "certificate-authentication"
   federated_enabled          = var.authentication_type == "federated-authentication"
   saml_provider_arn          = local.federated_enabled ? try(join("", aws_iam_saml_provider.default.*.arn), var.saml_provider_arn) : null
-  root_certificate_chain_arn = local.mutual_enabled ? module.self_signed_cert_ca.certificate_pem : null
+  root_certificate_chain_arn = local.mutual_enabled ? module.self_signed_cert_root.certificate_arn : null
   cloudwatch_log_group       = var.logging_enabled ? module.cloudwatch_log.log_group_name : null
   cloudwatch_log_stream      = var.logging_enabled ? var.logging_stream_name : null
-  ca_common_name             = var.ca_common_name != null ? var.ca_common_name : module.this.id
-  root_common_name           = var.root_common_name != null ? var.root_common_name : module.this.id
-  server_common_name         = var.server_common_name != null ? var.server_common_name : module.this.id
+  ca_common_name             = var.ca_common_name != null ? var.ca_common_name : "${module.this.id}.vpn.ca"
+  root_common_name           = var.root_common_name != null ? var.root_common_name : "${module.this.id}.vpn.client"
+  server_common_name         = var.server_common_name != null ? var.server_common_name : "${module.this.id}.vpn.server"
 }
 
 module "self_signed_cert_ca" {
-  source = "cloudposse/ssm-tls-self-signed-cert/aws"
+  source  = "cloudposse/ssm-tls-self-signed-cert/aws"
+  version = "0.3.0"
 
   name = "self-signed-cert-ca"
 
@@ -34,11 +36,14 @@ module "self_signed_cert_ca" {
     "cert_signing",
   ]
 
+  certificate_backends = local.certificate_backends
+
   context = module.this.context
 }
 
 module "self_signed_cert_root" {
-  source = "cloudposse/ssm-tls-self-signed-cert/aws"
+  source  = "cloudposse/ssm-tls-self-signed-cert/aws"
+  version = "0.3.0"
 
   name = "self-signed-cert-root"
 
@@ -57,13 +62,15 @@ module "self_signed_cert_root" {
     "server_auth"
   ]
 
+  certificate_backends = local.certificate_backends
+
   context = module.this.context
 }
 
 module "self_signed_cert_server" {
-  source = "cloudposse/ssm-tls-self-signed-cert/aws"
-
-  name = "self-signed-cert-server"
+  source  = "cloudposse/ssm-tls-self-signed-cert/aws"
+  version = "0.3.0"
+  name    = "self-signed-cert-server"
 
   subject = {
     common_name  = local.server_common_name
@@ -80,12 +87,14 @@ module "self_signed_cert_server" {
     "server_auth"
   ]
 
+  certificate_backends = local.certificate_backends
+
   context = module.this.context
 }
 
 module "cloudwatch_log" {
-  source = "cloudposse/cloudwatch-logs/aws"
-
+  source  = "cloudposse/cloudwatch-logs/aws"
+  version = "0.5.0"
   enabled = var.logging_enabled
 
   stream_names = [var.logging_stream_name]
@@ -118,10 +127,16 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   }
 
   tags = module.this.tags
+
+  depends_on = [
+    module.self_signed_cert_server
+  ]
+
 }
 
 module "vpn_security_group" {
-  source = "cloudposse/security-group/aws"
+  source  = "cloudposse/security-group/aws"
+  version = "0.4.0"
 
   rules = [
     {
@@ -141,10 +156,10 @@ module "vpn_security_group" {
 }
 
 resource "aws_ec2_client_vpn_network_association" "default" {
-  for_each = local.enabled ? toset(var.associated_subnets) : []
+  count = local.enabled ? length(var.associated_subnets) : 0
 
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
-  subnet_id              = each.key
+  subnet_id              = var.associated_subnets[count.index]
 
   security_groups = concat(
     [module.vpn_security_group.id],
@@ -170,13 +185,16 @@ resource "aws_ec2_client_vpn_route" "default" {
   destination_cidr_block = var.additional_routes[count.index].destination_cidr_block
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
   target_vpc_subnet_id   = var.additional_routes[count.index].target_vpc_subnet_id
+
+  depends_on = [
+    aws_ec2_client_vpn_network_association.default
+  ]
 }
 
 data "awsutils_ec2_client_vpn_export_client_config" "default" {
   id = aws_ec2_client_vpn_endpoint.default.id
 
   depends_on = [
-    aws_ec2_client_vpn_endpoint.default,
-    aws_ec2_client_vpn_network_association.default,
+    aws_ec2_client_vpn_endpoint.default
   ]
 }

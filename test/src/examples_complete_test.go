@@ -39,9 +39,11 @@ func TestExamplesComplete(t *testing.T) {
 	// Run `terraform output` to get the value of an output variable
 	vpnEndpointArn := terraform.Output(t, terraformOptions, "vpn_endpoint_arn")
 	vpnEndpointId := terraform.Output(t, terraformOptions, "vpn_endpoint_id")
+	vpnEndpointDnsName := terraform.Output(t, terraformOptions, "vpn_endpoint_dns_name")
 	clientConfiguration := terraform.Output(t, terraformOptions, "client_configuration")
 
 	assert.NotNil(t, vpnEndpointArn)
 	assert.NotNil(t, vpnEndpointId)
+	assert.NotNil(t, vpnEndpointDnsName)
 	assert.NotNil(t, clientConfiguration)
 }
