@@ -4,7 +4,7 @@ provider "awsutils" {
 
 locals {
   enabled                    = module.this.enabled
-  certificate_backends       = ["ACM"]
+  certificate_backends       = ["ACM", "SSM"]
   mutual_enabled             = var.authentication_type == "certificate-authentication"
   federated_enabled          = var.authentication_type == "federated-authentication"
   saml_provider_arn          = local.federated_enabled ? try(join("", aws_iam_saml_provider.default.*.arn), var.saml_provider_arn) : null
@@ -198,3 +198,13 @@ data "awsutils_ec2_client_vpn_export_client_config" "default" {
     aws_ec2_client_vpn_endpoint.default
   ]
 }
+
+data "aws_ssm_parameter" "default" {
+  count = var.export_client_certificate ? 1 : 0
+  name  = module.self_signed_cert_root.certificate_key_path
+
+  depends_on = [
+    module.self_signed_cert_root
+  ]
+}
+

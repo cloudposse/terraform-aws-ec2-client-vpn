@@ -68,5 +68,7 @@ module "example" {
 
   additional_security_groups = var.additional_security_groups
 
+  export_client_certificate = var.export_client_certificate
+
   vpc_id = module.vpc_target.vpc_id
 }

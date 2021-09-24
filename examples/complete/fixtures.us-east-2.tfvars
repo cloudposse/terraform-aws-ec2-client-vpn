@@ -45,3 +45,4 @@ authorization_rules = [
   },
 ]
 
+export_client_certificate = true
