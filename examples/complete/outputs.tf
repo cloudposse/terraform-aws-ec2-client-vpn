@@ -12,5 +12,5 @@ output "vpn_endpoint_dns_name" {
 
 output "client_configuration" {
   sensitive = true
-  value = module.example.full_client_configuration
+  value     = module.example.full_client_configuration
 }
