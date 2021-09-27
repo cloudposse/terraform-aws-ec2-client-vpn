@@ -18,7 +18,7 @@ locals {
 
 module "self_signed_cert_ca" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "0.3.0"
+  version = "0.4.0"
 
   name = "self-signed-cert-ca"
 
@@ -43,7 +43,7 @@ module "self_signed_cert_ca" {
 
 module "self_signed_cert_root" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "0.3.0"
+  version = "0.4.0"
 
   name = "self-signed-cert-root"
 
@@ -69,7 +69,7 @@ module "self_signed_cert_root" {
 
 module "self_signed_cert_server" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "0.3.0"
+  version = "0.4.0"
   name    = "self-signed-cert-server"
 
   subject = {
