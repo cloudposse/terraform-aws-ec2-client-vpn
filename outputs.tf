@@ -20,7 +20,7 @@ output "client_configuration" {
 
 output "full_client_configuration" {
   value = var.export_client_certificate ? templatefile(
-    "${path.module}/templates/client-config.ovpn.tpl",
+    "${path.module}/${var.client_configuration_template_path}",
     {
       cert        = module.self_signed_cert_root.certificate_pem,
       private_key = join("", data.aws_ssm_parameter.root_key.*.value)

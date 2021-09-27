@@ -158,3 +158,9 @@ variable "export_client_certificate" {
   type        = bool
   description = "Flag to determine whether to export the client certificate with the VPN configuration"
 }
+
+variable "client_configuration_template_path" {
+  default     = "templates/client-config.ovpn.tpl"
+  type        = string
+  description = "Path to template file of vpn client exported configuration. Path is relative to $${path.module}"
+}
