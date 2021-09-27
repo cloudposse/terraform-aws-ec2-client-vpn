@@ -4,7 +4,7 @@ provider "awsutils" {
 
 locals {
   enabled                    = module.this.enabled
-  certificate_backends       = ["ACM"]
+  certificate_backends       = ["ACM", "SSM"]
   mutual_enabled             = var.authentication_type == "certificate-authentication"
   federated_enabled          = var.authentication_type == "federated-authentication"
   saml_provider_arn          = local.federated_enabled ? try(join("", aws_iam_saml_provider.default.*.arn), var.saml_provider_arn) : null
@@ -18,9 +18,11 @@ locals {
 
 module "self_signed_cert_ca" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "0.3.0"
+  version = "0.4.0"
 
   name = "self-signed-cert-ca"
+
+  enabled = local.mutual_enabled
 
   subject = {
     common_name  = local.ca_common_name
@@ -36,16 +38,27 @@ module "self_signed_cert_ca" {
     "cert_signing",
   ]
 
-  certificate_backends = local.certificate_backends
+  certificate_backends = ["SSM"]
 
   context = module.this.context
 }
 
+data "aws_ssm_parameter" "ca_key" {
+  count = local.mutual_enabled ? 1 : 0
+  name  = module.self_signed_cert_ca.certificate_key_path
+
+  depends_on = [
+    module.self_signed_cert_ca
+  ]
+}
+
 module "self_signed_cert_root" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "0.3.0"
+  version = "0.4.0"
 
   name = "self-signed-cert-root"
+
+  enabled = local.mutual_enabled
 
   subject = {
     common_name  = local.root_common_name
@@ -59,18 +72,26 @@ module "self_signed_cert_root" {
   allowed_uses = [
     "key_encipherment",
     "digital_signature",
-    "server_auth"
+    "client_auth",
   ]
 
   certificate_backends = local.certificate_backends
+
+  use_locally_signed = true
+
+  certificate_chain = {
+    cert_pem        = module.self_signed_cert_ca.certificate_pem,
+    private_key_pem = join("", data.aws_ssm_parameter.ca_key.*.value)
+  }
 
   context = module.this.context
 }
 
 module "self_signed_cert_server" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "0.3.0"
-  name    = "self-signed-cert-server"
+  version = "0.4.0"
+
+  name = "self-signed-cert-server"
 
   subject = {
     common_name  = local.server_common_name
@@ -88,6 +109,13 @@ module "self_signed_cert_server" {
   ]
 
   certificate_backends = local.certificate_backends
+
+  use_locally_signed = true
+
+  certificate_chain = {
+    cert_pem        = module.self_signed_cert_ca.certificate_pem,
+    private_key_pem = join("", data.aws_ssm_parameter.ca_key.*.value)
+  }
 
   context = module.this.context
 }
@@ -129,9 +157,9 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   tags = module.this.tags
 
   depends_on = [
-    module.self_signed_cert_server
+    module.self_signed_cert_server,
+    module.self_signed_cert_root,
   ]
-
 }
 
 module "vpn_security_group" {
@@ -196,5 +224,18 @@ data "awsutils_ec2_client_vpn_export_client_config" "default" {
 
   depends_on = [
     aws_ec2_client_vpn_endpoint.default
+  ]
+}
+
+resource "random_pet" "vpn_host" {
+  length = "2"
+}
+
+data "aws_ssm_parameter" "root_key" {
+  count = var.export_client_certificate ? 1 : 0
+  name  = module.self_signed_cert_root.certificate_key_path
+
+  depends_on = [
+    module.self_signed_cert_root
   ]
 }

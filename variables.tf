@@ -152,3 +152,15 @@ variable "server_common_name" {
   description = "Unique Common Name for Server self-signed certificate"
 }
 
+variable "export_client_certificate" {
+  default     = false
+  sensitive   = true
+  type        = bool
+  description = "Flag to determine whether to export the client certificate with the VPN configuration"
+}
+
+variable "client_configuration_template_path" {
+  default     = "templates/client-config.ovpn.tpl"
+  type        = string
+  description = "Path to template file of vpn client exported configuration. Path is relative to $${path.module}"
+}

@@ -78,3 +78,10 @@ variable "server_common_name" {
   type        = string
   description = "Unique Common Name for Server self-signed certificate"
 }
+
+variable "export_client_certificate" {
+  default     = false
+  sensitive   = true
+  type        = bool
+  description = "Flag to determine whether to export the client certificate with the VPN configuration"
+}

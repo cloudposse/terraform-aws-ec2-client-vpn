@@ -19,15 +19,6 @@ module "vpc_target" {
   context = module.this.context
 }
 
-module "vpc_client" {
-  source  = "cloudposse/vpc/aws"
-  version = "0.21.1"
-
-  cidr_block = var.client_cidr_block
-
-  context = module.this.context
-}
-
 module "subnets" {
   source  = "cloudposse/dynamic-subnets/aws"
   version = "0.39.3"
@@ -50,7 +41,7 @@ module "example" {
   root_common_name   = var.root_common_name
   server_common_name = var.server_common_name
 
-  client_cidr = module.vpc_client.vpc_cidr_block
+  client_cidr = var.client_cidr_block
 
   organization_name = var.organization_name
 
@@ -67,6 +58,8 @@ module "example" {
   additional_routes = local.additional_routes
 
   additional_security_groups = var.additional_security_groups
+
+  export_client_certificate = var.export_client_certificate
 
   vpc_id = module.vpc_target.vpc_id
 }

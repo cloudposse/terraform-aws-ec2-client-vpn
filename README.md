@@ -192,6 +192,7 @@ Available targets:
 | <a name="requirement_awsutils"></a> [awsutils](#requirement\_awsutils) | >= 0.8.0 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | >= 1.2 |
 | <a name="requirement_null"></a> [null](#requirement\_null) | >= 2.0 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | >= 3.1.0 |
 
 ## Providers
 
@@ -199,15 +200,16 @@ Available targets:
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.0 |
 | <a name="provider_awsutils"></a> [awsutils](#provider\_awsutils) | >= 0.8.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | >= 3.1.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_cloudwatch_log"></a> [cloudwatch\_log](#module\_cloudwatch\_log) | cloudposse/cloudwatch-logs/aws | 0.5.0 |
-| <a name="module_self_signed_cert_ca"></a> [self\_signed\_cert\_ca](#module\_self\_signed\_cert\_ca) | cloudposse/ssm-tls-self-signed-cert/aws | 0.3.0 |
-| <a name="module_self_signed_cert_root"></a> [self\_signed\_cert\_root](#module\_self\_signed\_cert\_root) | cloudposse/ssm-tls-self-signed-cert/aws | 0.3.0 |
-| <a name="module_self_signed_cert_server"></a> [self\_signed\_cert\_server](#module\_self\_signed\_cert\_server) | cloudposse/ssm-tls-self-signed-cert/aws | 0.3.0 |
+| <a name="module_self_signed_cert_ca"></a> [self\_signed\_cert\_ca](#module\_self\_signed\_cert\_ca) | cloudposse/ssm-tls-self-signed-cert/aws | 0.4.0 |
+| <a name="module_self_signed_cert_root"></a> [self\_signed\_cert\_root](#module\_self\_signed\_cert\_root) | cloudposse/ssm-tls-self-signed-cert/aws | 0.4.0 |
+| <a name="module_self_signed_cert_server"></a> [self\_signed\_cert\_server](#module\_self\_signed\_cert\_server) | cloudposse/ssm-tls-self-signed-cert/aws | 0.4.0 |
 | <a name="module_this"></a> [this](#module\_this) | cloudposse/label/null | 0.25.0 |
 | <a name="module_vpn_security_group"></a> [vpn\_security\_group](#module\_vpn\_security\_group) | cloudposse/security-group/aws | 0.4.0 |
 
@@ -220,6 +222,9 @@ Available targets:
 | [aws_ec2_client_vpn_network_association.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_client_vpn_network_association) | resource |
 | [aws_ec2_client_vpn_route.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_client_vpn_route) | resource |
 | [aws_iam_saml_provider.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_saml_provider) | resource |
+| [random_pet.vpn_host](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
+| [aws_ssm_parameter.ca_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
+| [aws_ssm_parameter.root_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 | [awsutils_ec2_client_vpn_export_client_config.default](https://registry.terraform.io/providers/cloudposse/awsutils/latest/docs/data-sources/ec2_client_vpn_export_client_config) | data source |
 
 ## Inputs
@@ -236,11 +241,13 @@ Available targets:
 | <a name="input_basic_constraints"></a> [basic\_constraints](#input\_basic\_constraints) | The [basic constraints](https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.9) of the issued certificate.<br>Currently, only the `CA` constraint (which identifies whether the subject of the certificate is a CA) can be set.<br>Defaults to this certificate not being a CA. | <pre>object({<br>    ca = bool<br>  })</pre> | <pre>{<br>  "ca": false<br>}</pre> | no |
 | <a name="input_ca_common_name"></a> [ca\_common\_name](#input\_ca\_common\_name) | Unique Common Name for CA self-signed certificate | `string` | `null` | no |
 | <a name="input_client_cidr"></a> [client\_cidr](#input\_client\_cidr) | Network CIDR to use for clients | `any` | n/a | yes |
+| <a name="input_client_configuration_template_path"></a> [client\_configuration\_template\_path](#input\_client\_configuration\_template\_path) | Path to template file of vpn client exported configuration. Path is relative to ${path.module} | `string` | `"templates/client-config.ovpn.tpl"` | no |
 | <a name="input_context"></a> [context](#input\_context) | Single object for setting entire context at once.<br>See description of individual variables for details.<br>Leave string and numeric variables as `null` to use default value.<br>Individual variable settings (non-null) override settings in context object,<br>except for attributes, tags, and additional\_tag\_map, which are merged. | `any` | <pre>{<br>  "additional_tag_map": {},<br>  "attributes": [],<br>  "delimiter": null,<br>  "descriptor_formats": {},<br>  "enabled": true,<br>  "environment": null,<br>  "id_length_limit": null,<br>  "label_key_case": null,<br>  "label_order": [],<br>  "label_value_case": null,<br>  "labels_as_tags": [<br>    "unset"<br>  ],<br>  "name": null,<br>  "namespace": null,<br>  "regex_replace_chars": null,<br>  "stage": null,<br>  "tags": {},<br>  "tenant": null<br>}</pre> | no |
 | <a name="input_delimiter"></a> [delimiter](#input\_delimiter) | Delimiter to be used between ID elements.<br>Defaults to `-` (hyphen). Set to `""` to use no delimiter at all. | `string` | `null` | no |
 | <a name="input_descriptor_formats"></a> [descriptor\_formats](#input\_descriptor\_formats) | Describe additional descriptors to be output in the `descriptors` output map.<br>Map of maps. Keys are names of descriptors. Values are maps of the form<br>`{<br>   format = string<br>   labels = list(string)<br>}`<br>(Type is `any` so the map values can later be enhanced to provide additional options.)<br>`format` is a Terraform format string to be passed to the `format()` function.<br>`labels` is a list of labels, in order, to pass to `format()` function.<br>Label values will be normalized before being passed to `format()` so they will be<br>identical to how they appear in `id`.<br>Default is `{}` (`descriptors` output will be empty). | `any` | `{}` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources | `bool` | `null` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | ID element. Usually used for region e.g. 'uw2', 'us-west-2', OR role 'prod', 'staging', 'dev', 'UAT' | `string` | `null` | no |
+| <a name="input_export_client_certificate"></a> [export\_client\_certificate](#input\_export\_client\_certificate) | Flag to determine whether to export the client certificate with the VPN configuration | `bool` | `false` | no |
 | <a name="input_id_length_limit"></a> [id\_length\_limit](#input\_id\_length\_limit) | Limit `id` to this many characters (minimum 6).<br>Set to `0` for unlimited length.<br>Set to `null` for keep the existing setting, which defaults to `0`.<br>Does not affect `id_full`. | `number` | `null` | no |
 | <a name="input_label_key_case"></a> [label\_key\_case](#input\_label\_key\_case) | Controls the letter case of the `tags` keys (label names) for tags generated by this module.<br>Does not affect keys of tags passed in via the `tags` input.<br>Possible values: `lower`, `title`, `upper`.<br>Default value: `title`. | `string` | `null` | no |
 | <a name="input_label_order"></a> [label\_order](#input\_label\_order) | The order in which the labels (ID elements) appear in the `id`.<br>Defaults to ["namespace", "environment", "stage", "name", "attributes"].<br>You can omit any of the 6 labels ("tenant" is the 6th), but at least one must be present. | `list(string)` | `null` | no |
@@ -269,6 +276,7 @@ Available targets:
 | Name | Description |
 |------|-------------|
 | <a name="output_client_configuration"></a> [client\_configuration](#output\_client\_configuration) | VPN Client Configuration data. |
+| <a name="output_full_client_configuration"></a> [full\_client\_configuration](#output\_full\_client\_configuration) | Client configuration including client certificate and private key |
 | <a name="output_vpn_endpoint_arn"></a> [vpn\_endpoint\_arn](#output\_vpn\_endpoint\_arn) | The ARN of the Client VPN Endpoint Connection. |
 | <a name="output_vpn_endpoint_dns_name"></a> [vpn\_endpoint\_dns\_name](#output\_vpn\_endpoint\_dns\_name) | The DNS Name of the Client VPN Endpoint Connection. |
 | <a name="output_vpn_endpoint_id"></a> [vpn\_endpoint\_id](#output\_vpn\_endpoint\_id) | The ID of the Client VPN Endpoint Connection. |
