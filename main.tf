@@ -14,11 +14,6 @@ locals {
   ca_common_name             = var.ca_common_name != null ? var.ca_common_name : "${module.this.id}.vpn.ca"
   root_common_name           = var.root_common_name != null ? var.root_common_name : "${module.this.id}.vpn.client"
   server_common_name         = var.server_common_name != null ? var.server_common_name : "${module.this.id}.vpn.server"
-  vpn_endpoint_deps = mutual_enabled ? [
-    module.self_signed_cert_server,
-    module.self_signed_cert_root,
-  ] : [module.self_signed_cert_server, ]
-
 }
 
 module "self_signed_cert_ca" {
@@ -161,7 +156,10 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
 
   tags = module.this.tags
 
-  depends_on = local.vpn_endpoint_deps
+  depends_on = [
+    module.self_signed_cert_server,
+    module.self_signed_cert_root,
+  ]
 }
 
 module "vpn_security_group" {
@@ -241,4 +239,3 @@ data "aws_ssm_parameter" "root_key" {
     module.self_signed_cert_root
   ]
 }
-
