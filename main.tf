@@ -14,6 +14,7 @@ locals {
   ca_common_name             = var.ca_common_name != null ? var.ca_common_name : "${module.this.id}.vpn.ca"
   root_common_name           = var.root_common_name != null ? var.root_common_name : "${module.this.id}.vpn.client"
   server_common_name         = var.server_common_name != null ? var.server_common_name : "${module.this.id}.vpn.server"
+  client_conf_tmpl_path      = var.client_conf_tmpl_path == null ? "${path.module}/templates/client-config.ovpn.tpl" : var.client_conf_tmpl_path
 }
 
 module "self_signed_cert_ca" {
@@ -225,10 +226,6 @@ data "awsutils_ec2_client_vpn_export_client_config" "default" {
   depends_on = [
     aws_ec2_client_vpn_endpoint.default
   ]
-}
-
-resource "random_pet" "vpn_host" {
-  length = "2"
 }
 
 data "aws_ssm_parameter" "root_key" {
