@@ -2,6 +2,10 @@ provider "aws" {
   region = var.region
 }
 
+provider "awsutils" {
+  region = var.region
+}
+
 locals {
   additional_routes = [for route in var.additional_routes : {
     destination_cidr_block = route.destination_cidr_block
