@@ -1,7 +1,3 @@
-provider "awsutils" {
-  region = var.region
-}
-
 locals {
   enabled                    = module.this.enabled
   certificate_backends       = ["ACM", "SSM"]
