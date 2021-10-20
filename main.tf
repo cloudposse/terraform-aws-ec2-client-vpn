@@ -19,7 +19,7 @@ module "self_signed_cert_ca" {
 
   name = "self-signed-cert-ca"
 
-  enabled = local.mutual_enabled
+  enabled = local.enabled
 
   subject = {
     common_name  = local.ca_common_name
@@ -89,6 +89,8 @@ module "self_signed_cert_server" {
   version = "0.4.0"
 
   name = "self-signed-cert-server"
+
+  enabled = local.enabled
 
   subject = {
     common_name  = local.server_common_name
