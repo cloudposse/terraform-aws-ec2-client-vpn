@@ -19,8 +19,6 @@ module "self_signed_cert_ca" {
 
   name = "self-signed-cert-ca"
 
-  enabled = local.mutual_enabled
-
   subject = {
     common_name  = local.ca_common_name
     organization = var.organization_name
