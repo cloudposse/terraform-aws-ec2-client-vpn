@@ -163,7 +163,7 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
 
 module "vpn_security_group" {
   source  = "cloudposse/security-group/aws"
-  version = "0.4.0"
+  version = "0.4.1"
 
   rules = [
     {
