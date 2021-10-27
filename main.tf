@@ -3,7 +3,7 @@ locals {
   certificate_backends       = ["ACM", "SSM"]
   mutual_enabled             = var.authentication_type == "certificate-authentication"
   federated_enabled          = var.authentication_type == "federated-authentication"
-  saml_provider_arn          = local.federated_enabled ? try(join("", aws_iam_saml_provider.default.*.arn), var.saml_provider_arn) : null
+  saml_provider_arn          = local.federated_enabled ? try(aws_iam_saml_provider.defaul[0].arn, var.saml_provider_arn) : null
   root_certificate_chain_arn = local.mutual_enabled ? module.self_signed_cert_root.certificate_arn : null
   cloudwatch_log_group       = var.logging_enabled ? module.cloudwatch_log.log_group_name : null
   cloudwatch_log_stream      = var.logging_enabled ? var.logging_stream_name : null
@@ -191,7 +191,7 @@ resource "aws_ec2_client_vpn_network_association" "default" {
   security_groups = concat(
     [module.vpn_security_group.id],
     var.additional_security_groups
-  )
+  ) 
 }
 
 resource "aws_ec2_client_vpn_authorization_rule" "default" {
