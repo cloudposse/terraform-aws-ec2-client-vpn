@@ -41,7 +41,7 @@ module "self_signed_cert_ca" {
 }
 
 data "aws_ssm_parameter" "ca_key" {
-  count = local.mutual_enabled ? 1 : 0
+  count = local.enabled ? 1 : 0
   name  = module.self_signed_cert_ca.certificate_key_path
 
   depends_on = [
