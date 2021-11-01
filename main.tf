@@ -132,7 +132,7 @@ module "cloudwatch_log" {
 resource "aws_iam_saml_provider" "default" {
   count = var.saml_metadata_document != null ? 1 : 0
 
-  name                   = var.name
+  name                   = module.this.id
   saml_metadata_document = var.saml_metadata_document
 }
 
