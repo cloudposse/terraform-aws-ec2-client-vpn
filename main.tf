@@ -3,7 +3,7 @@ locals {
   certificate_backends       = ["ACM", "SSM"]
   mutual_enabled             = var.authentication_type == "certificate-authentication"
   federated_enabled          = var.authentication_type == "federated-authentication"
-  saml_provider_arn          = local.federated_enabled ? try(join("", aws_iam_saml_provider.default.*.arn), var.saml_provider_arn) : null
+  saml_provider_arn          = local.federated_enabled ? try(aws_iam_saml_provider.default[0].arn, var.saml_provider_arn) : null
   root_certificate_chain_arn = local.mutual_enabled ? module.self_signed_cert_root.certificate_arn : null
   cloudwatch_log_group       = var.logging_enabled ? module.cloudwatch_log.log_group_name : null
   cloudwatch_log_stream      = var.logging_enabled ? var.logging_stream_name : null
@@ -132,7 +132,7 @@ module "cloudwatch_log" {
 resource "aws_iam_saml_provider" "default" {
   count = var.saml_metadata_document != null ? 1 : 0
 
-  name                   = var.name
+  name                   = module.this.id
   saml_metadata_document = var.saml_metadata_document
 }
 
