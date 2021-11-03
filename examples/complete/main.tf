@@ -66,4 +66,8 @@ module "example" {
   export_client_certificate = var.export_client_certificate
 
   vpc_id = module.vpc_target.vpc_id
+
+  dns_servers = var.dns_servers
+
+  split_tunnel = var.split_tunnel
 }
