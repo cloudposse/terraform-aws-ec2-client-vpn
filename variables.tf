@@ -166,12 +166,12 @@ variable "client_conf_tmpl_path" {
 }
 
 variable "dns_servers" {
-  default     = []
-  type        = list(string)
+  default = []
+  type    = list(string)
   validation = {
     condition = can(
       [
-        for server_ip in var.dns_servers: regex(
+        for server_ip in var.dns_servers : regex(
           "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
           server_ip
         )
