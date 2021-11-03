@@ -164,3 +164,15 @@ variable "client_conf_tmpl_path" {
   type        = string
   description = "Path to template file of vpn client exported configuration. Path is relative to $${path.module}"
 }
+
+variable "dns_servers" {
+  default     = []
+  type        = list(string)
+  description = "(Optional) Information about the DNS servers to be used for DNS resolution. A Client VPN endpoint can have up to two DNS servers. If no DNS server is specified, the DNS address of the VPC that is to be associated with Client VPN endpoint is used as the DNS server."
+}
+
+variable "split_tunnel" {
+  default     = false
+  type        = bool
+  description = "(Optional) Indicates whether split-tunnel is enabled on VPN endpoint. Default value is false."
+}

@@ -34,4 +34,6 @@ additional_security_groups = []
 authorization_rules = [
 ]
 
+split_tunnel = true
+
 export_client_certificate = true

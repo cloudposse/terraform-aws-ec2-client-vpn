@@ -153,6 +153,10 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
     cloudwatch_log_stream = local.cloudwatch_log_stream
   }
 
+  dns_servers = var.dns_servers
+
+  split_tunnel = var.split_tunnel
+
   tags = module.this.tags
 
   depends_on = [
