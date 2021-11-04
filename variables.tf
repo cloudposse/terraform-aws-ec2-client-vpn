@@ -168,7 +168,7 @@ variable "client_conf_tmpl_path" {
 variable "dns_servers" {
   default     = []
   type        = list(string)
-  validation = {
+  validation {
     condition = can(
       [
         for server_ip in var.dns_servers: regex(
@@ -177,6 +177,7 @@ variable "dns_servers" {
         )
       ]
     )
+    error_message = "IPv4 addresses must match the appropriate format xxx.xxx.xxx.xxx"
   }
   description = "(Optional) Information about the DNS servers to be used for DNS resolution. A Client VPN endpoint can have up to two DNS servers. If no DNS server is specified, the DNS address of the VPC that is to be associated with Client VPN endpoint is used as the DNS server."
 }
