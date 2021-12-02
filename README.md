@@ -189,8 +189,8 @@ Available targets:
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.0 |
-| <a name="provider_awsutils"></a> [awsutils](#provider\_awsutils) | >= 0.8.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.68.0 |
+| <a name="provider_awsutils"></a> [awsutils](#provider\_awsutils) | 0.11.0 |
 
 ## Modules
 
