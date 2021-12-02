@@ -37,37 +37,6 @@ variable "logging_stream_name" {
   description = "Names of stream used for logging"
 }
 
-variable "basic_constraints" {
-  description = <<-EOT
-    The [basic constraints](https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.9) of the issued certificate.
-    Currently, only the `CA` constraint (which identifies whether the subject of the certificate is a CA) can be set.
-    Defaults to this certificate not being a CA.
-  EOT
-  type = object({
-    ca = bool
-  })
-  default = {
-    ca = false
-  }
-}
-
-variable "validity" {
-  description = <<-EOT
-    Validity settings for the issued certificate:
-    `duration_hours`: The number of hours from issuing the certificate until it becomes invalid.
-    `early_renewal_hours`: If set, the resource will consider the certificate to have expired the given number of hours before its actual expiry time (see: [self_signed_cert.early_renewal_hours](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/self_signed_cert#early_renewal_hours)).
-    Defaults to 10 years and no early renewal hours.
-  EOT
-  type = object({
-    duration_hours      = number
-    early_renewal_hours = number
-  })
-  default = {
-    duration_hours      = 87600
-    early_renewal_hours = null
-  }
-}
-
 variable "saml_metadata_document" {
   default     = null
   description = "Optional SAML metadata document. Must include this or `saml_provider_arn`"

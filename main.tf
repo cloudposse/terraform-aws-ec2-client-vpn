@@ -125,6 +125,8 @@ module "cloudwatch_log" {
 
   stream_names = [var.logging_stream_name]
 
+  retention_in_days = var.retention_in_days
+
   context = module.this.context
 }
 
