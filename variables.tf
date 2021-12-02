@@ -1,9 +1,5 @@
-variable "region" {
-  type        = string
-  description = "VPN Endpoints are region-specific. This identifies the region. AWS Region"
-}
-
 variable "client_cidr" {
+  type        = string
   description = "Network CIDR to use for clients"
 }
 
@@ -31,6 +27,7 @@ variable "organization_name" {
 }
 
 variable "retention_in_days" {
+  type        = number
   description = "Number of days you want to retain log events in the log group"
   default     = "30"
 }
@@ -38,37 +35,6 @@ variable "retention_in_days" {
 variable "logging_stream_name" {
   type        = string
   description = "Names of stream used for logging"
-}
-
-variable "basic_constraints" {
-  description = <<-EOT
-    The [basic constraints](https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.9) of the issued certificate.
-    Currently, only the `CA` constraint (which identifies whether the subject of the certificate is a CA) can be set.
-    Defaults to this certificate not being a CA.
-  EOT
-  type = object({
-    ca = bool
-  })
-  default = {
-    ca = false
-  }
-}
-
-variable "validity" {
-  description = <<-EOT
-    Validity settings for the issued certificate:
-    `duration_hours`: The number of hours from issuing the certificate until it becomes invalid.
-    `early_renewal_hours`: If set, the resource will consider the certificate to have expired the given number of hours before its actual expiry time (see: [self_signed_cert.early_renewal_hours](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/self_signed_cert#early_renewal_hours)).
-    Defaults to 10 years and no early renewal hours.
-  EOT
-  type = object({
-    duration_hours      = number
-    early_renewal_hours = number
-  })
-  default = {
-    duration_hours      = 87600
-    early_renewal_hours = null
-  }
 }
 
 variable "saml_metadata_document" {
@@ -179,11 +145,11 @@ variable "dns_servers" {
     )
     error_message = "IPv4 addresses must match the appropriate format xxx.xxx.xxx.xxx."
   }
-  description = "(Optional) Information about the DNS servers to be used for DNS resolution. A Client VPN endpoint can have up to two DNS servers. If no DNS server is specified, the DNS address of the VPC that is to be associated with Client VPN endpoint is used as the DNS server."
+  description = "Information about the DNS servers to be used for DNS resolution. A Client VPN endpoint can have up to two DNS servers. If no DNS server is specified, the DNS address of the VPC that is to be associated with Client VPN endpoint is used as the DNS server."
 }
 
 variable "split_tunnel" {
   default     = false
   type        = bool
-  description = "(Optional) Indicates whether split-tunnel is enabled on VPN endpoint. Default value is false."
+  description = "Indicates whether split-tunnel is enabled on VPN endpoint. Default value is false."
 }
