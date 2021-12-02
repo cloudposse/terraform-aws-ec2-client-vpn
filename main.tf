@@ -1,12 +1,15 @@
 locals {
-  enabled                    = module.this.enabled
+  enabled = module.this.enabled
+
+  mutual_enabled             = local.enabled && var.authentication_type == "certificate-authentication"
+  federated_enabled          = local.enabled && var.authentication_type == "federated-authentication"
+  logging_enabled            = local.enabled && var.logging_enabled
+  export_client_certificate  = local.enabled && var.export_client_certificate
   certificate_backends       = ["ACM", "SSM"]
-  mutual_enabled             = var.authentication_type == "certificate-authentication"
-  federated_enabled          = var.authentication_type == "federated-authentication"
   saml_provider_arn          = local.federated_enabled ? try(aws_iam_saml_provider.default[0].arn, var.saml_provider_arn) : null
   root_certificate_chain_arn = local.mutual_enabled ? module.self_signed_cert_root.certificate_arn : null
-  cloudwatch_log_group       = var.logging_enabled ? module.cloudwatch_log.log_group_name : null
-  cloudwatch_log_stream      = var.logging_enabled ? var.logging_stream_name : null
+  cloudwatch_log_group       = local.logging_enabled ? module.cloudwatch_log.log_group_name : null
+  cloudwatch_log_stream      = local.logging_enabled ? var.logging_stream_name : null
   ca_common_name             = var.ca_common_name != null ? var.ca_common_name : "${module.this.id}.vpn.ca"
   root_common_name           = var.root_common_name != null ? var.root_common_name : "${module.this.id}.vpn.client"
   server_common_name         = var.server_common_name != null ? var.server_common_name : "${module.this.id}.vpn.server"
@@ -18,8 +21,6 @@ module "self_signed_cert_ca" {
   version = "0.4.0"
 
   name = "self-signed-cert-ca"
-
-  enabled = local.enabled
 
   subject = {
     common_name  = local.ca_common_name
@@ -90,8 +91,6 @@ module "self_signed_cert_server" {
 
   name = "self-signed-cert-server"
 
-  enabled = local.enabled
-
   subject = {
     common_name  = local.server_common_name
     organization = var.organization_name
@@ -122,7 +121,7 @@ module "self_signed_cert_server" {
 module "cloudwatch_log" {
   source  = "cloudposse/cloudwatch-logs/aws"
   version = "0.6.1"
-  enabled = var.logging_enabled
+  enabled = local.logging_enabled
 
   stream_names = [var.logging_stream_name]
 
@@ -130,13 +129,15 @@ module "cloudwatch_log" {
 }
 
 resource "aws_iam_saml_provider" "default" {
-  count = var.saml_metadata_document != null ? 1 : 0
+  count = local.enabled && var.saml_metadata_document != null ? 1 : 0
 
   name                   = module.this.id
   saml_metadata_document = var.saml_metadata_document
 }
 
 resource "aws_ec2_client_vpn_endpoint" "default" {
+  count = local.enabled ? 1 : 0
+
   description            = module.this.id
   server_certificate_arn = module.self_signed_cert_server.certificate_arn
   client_cidr_block      = var.client_cidr
@@ -189,7 +190,7 @@ module "vpn_security_group" {
 resource "aws_ec2_client_vpn_network_association" "default" {
   count = local.enabled ? length(var.associated_subnets) : 0
 
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
+  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
   subnet_id              = var.associated_subnets[count.index]
 
   security_groups = concat(
@@ -206,7 +207,6 @@ resource "aws_ec2_client_vpn_authorization_rule" "default" {
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
   description            = var.authorization_rules[count.index].description
   target_network_cidr    = var.authorization_rules[count.index].target_network_cidr
-
 }
 
 resource "aws_ec2_client_vpn_route" "default" {
@@ -223,18 +223,13 @@ resource "aws_ec2_client_vpn_route" "default" {
 }
 
 data "awsutils_ec2_client_vpn_export_client_config" "default" {
-  id = aws_ec2_client_vpn_endpoint.default.id
+  count = local.enabled ? 1 : 0
 
-  depends_on = [
-    aws_ec2_client_vpn_endpoint.default
-  ]
+  id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
 }
 
 data "aws_ssm_parameter" "root_key" {
-  count = var.export_client_certificate ? 1 : 0
-  name  = module.self_signed_cert_root.certificate_key_path
+  count = local.enabled && var.export_client_certificate ? 1 : 0
 
-  depends_on = [
-    module.self_signed_cert_root
-  ]
+  name = module.self_signed_cert_root.certificate_key_path
 }
