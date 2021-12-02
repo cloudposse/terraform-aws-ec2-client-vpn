@@ -133,6 +133,8 @@ resource "aws_iam_saml_provider" "default" {
 
   name                   = module.this.id
   saml_metadata_document = var.saml_metadata_document
+
+  tags = module.this.tags
 }
 
 resource "aws_ec2_client_vpn_endpoint" "default" {
