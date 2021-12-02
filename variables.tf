@@ -1,9 +1,5 @@
-variable "region" {
-  type        = string
-  description = "VPN Endpoints are region-specific. This identifies the region. AWS Region"
-}
-
 variable "client_cidr" {
+  type        = string
   description = "Network CIDR to use for clients"
 }
 
@@ -31,6 +27,7 @@ variable "organization_name" {
 }
 
 variable "retention_in_days" {
+  type        = number
   description = "Number of days you want to retain log events in the log group"
   default     = "30"
 }
@@ -179,11 +176,11 @@ variable "dns_servers" {
     )
     error_message = "IPv4 addresses must match the appropriate format xxx.xxx.xxx.xxx."
   }
-  description = "(Optional) Information about the DNS servers to be used for DNS resolution. A Client VPN endpoint can have up to two DNS servers. If no DNS server is specified, the DNS address of the VPC that is to be associated with Client VPN endpoint is used as the DNS server."
+  description = "Information about the DNS servers to be used for DNS resolution. A Client VPN endpoint can have up to two DNS servers. If no DNS server is specified, the DNS address of the VPC that is to be associated with Client VPN endpoint is used as the DNS server."
 }
 
 variable "split_tunnel" {
   default     = false
   type        = bool
-  description = "(Optional) Indicates whether split-tunnel is enabled on VPN endpoint. Default value is false."
+  description = "Indicates whether split-tunnel is enabled on VPN endpoint. Default value is false."
 }
