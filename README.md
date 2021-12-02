@@ -131,8 +131,10 @@ module "subnets" {
   context = module.this.context
 }
 
-module "example" {
-  source = "cloudposse/ec2-client-vpn"
+module "ec2_client_vpn" {
+  source  = "cloudposse/ec2-client-vpn/aws"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   client_cidr             = module.vpc_client.vpc_cidr_block
   organization_name       = var.organization_name

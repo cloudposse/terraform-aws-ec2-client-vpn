@@ -14,7 +14,7 @@ output "vpn_endpoint_dns_name" {
 }
 
 output "client_configuration" {
-  value       = local.enabled ? data.awsutils_ec2_client_vpn_export_client_config.default.client_configuration : null
+  value       = local.enabled ? data.awsutils_ec2_client_vpn_export_client_config.default.*.client_configuration : null
   description = "VPN Client Configuration data."
 }
 
@@ -25,7 +25,7 @@ output "full_client_configuration" {
       cert        = module.self_signed_cert_root.certificate_pem,
       private_key = join("", data.aws_ssm_parameter.root_key.*.value)
       original_client_config = replace(
-        data.awsutils_ec2_client_vpn_export_client_config.default.client_configuration,
+        data.awsutils_ec2_client_vpn_export_client_config.default.*.client_configuration,
         "remote cvpn",
         "remote ${module.this.id}.cvpn"
       )

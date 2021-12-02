@@ -204,7 +204,7 @@ resource "aws_ec2_client_vpn_authorization_rule" "default" {
 
   access_group_id        = var.authorization_rules[count.index].access_group_id
   authorize_all_groups   = var.authorization_rules[count.index].authorize_all_groups
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
+  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
   description            = var.authorization_rules[count.index].description
   target_network_cidr    = var.authorization_rules[count.index].target_network_cidr
 }
@@ -214,7 +214,7 @@ resource "aws_ec2_client_vpn_route" "default" {
 
   description            = try(var.additional_routes[count.index].description, null)
   destination_cidr_block = var.additional_routes[count.index].destination_cidr_block
-  client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.default.id
+  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
   target_vpc_subnet_id   = var.additional_routes[count.index].target_vpc_subnet_id
 
   depends_on = [

@@ -36,10 +36,8 @@ module "subnets" {
   context              = module.this.context
 }
 
-module "example" {
+module "ec2_client_vpn" {
   source = "../../"
-
-  region = var.region
 
   ca_common_name     = var.ca_common_name
   root_common_name   = var.root_common_name
