@@ -1,6 +1,6 @@
 
 <!-- markdownlint-disable -->
-# terraform-aws-ec2-client-vpn [![Latest Release](https://img.shields.io/github/release/cloudposse/terraform-example-module.svg)](https://github.com/cloudposse/terraform-example-module/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com) [![Discourse Forum](https://img.shields.io/discourse/https/ask.sweetops.com/posts.svg)](https://ask.sweetops.com/)
+# terraform-aws-ec2-client-vpn [![Latest Release](https://img.shields.io/github/release/cloudposse/terraform-aws-ec2-client-vpn.svg)](https://github.com/cloudposse/terraform-aws-ec2-client-vpn/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com) [![Discourse Forum](https://img.shields.io/discourse/https/ask.sweetops.com/posts.svg)](https://ask.sweetops.com/)
 <!-- markdownlint-restore -->
 
 [![README Header][readme_header_img]][readme_header_link]
@@ -101,7 +101,8 @@ For automated tests of the complete example using [bats](https://github.com/bats
 ```hcl
 module "vpc_target" {
   source  = "cloudposse/vpc/aws"
-  version = "0.21.1"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   cidr_block = "172.16.0.0/16"
 
@@ -110,7 +111,8 @@ module "vpc_target" {
 
 module "vpc_client" {
   source  = "cloudposse/vpc/aws"
-  version = "0.21.1"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   cidr_block = "172.31.0.0/16"
 
@@ -119,7 +121,8 @@ module "vpc_client" {
 
 module "subnets" {
   source  = "cloudposse/dynamic-subnets/aws"
-  version = "0.39.3"
+  # Cloud Posse recommends pinning every module to a specific version
+  # version = "x.x.x"
 
   availability_zones   = var.availability_zones
   vpc_id               = module.vpc_target.vpc_id
