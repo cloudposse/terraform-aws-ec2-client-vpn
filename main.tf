@@ -197,7 +197,7 @@ module "vpn_security_group" {
         from_port   = 0
         to_port     = 0
         protocol    = "-1"
-        description = "Allow all ingress to listed security groups"
+        description = "Allow all ingress from designated sources"
       }]
     }
   ]
