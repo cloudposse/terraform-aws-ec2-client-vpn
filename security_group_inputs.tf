@@ -20,6 +20,21 @@ locals {
   associated_security_group_ids = concat(var.additional_security_groups, var.associated_security_group_ids)
 }
 
+variable "allowed_security_group_ids" {
+  type        = list(string)
+  default     = []
+  description = <<-EOT
+    A list of IDs of Security Groups to allow access to the security group created by this module.
+    The length of this list must be known at "plan" time.
+    EOT
+}
+
+variable "allow_self_security_group" {
+  type        = bool
+  default     = true
+  description = "Whether the security group itself will be added as a source to this ingress rule."
+}
+
 variable "security_group_name" {
   type        = list(string)
   default     = []

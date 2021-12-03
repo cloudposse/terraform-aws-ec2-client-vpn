@@ -21,6 +21,33 @@ variable "authentication_type" {
   }
 }
 
+variable "allowed_cidr_blocks" {
+  type        = list(string)
+  default     = []
+  description = <<-EOT
+    A list of IPv4 CIDRs to allow access to the security group created by this module.
+    The length of this list must be known at "plan" time.
+    EOT
+}
+
+variable "allowed_ipv6_cidr_blocks" {
+  type        = list(string)
+  default     = []
+  description = <<-EOT
+    A list of IPv6 CIDRs to allow access to the security group created by this module.
+    The length of this list must be known at "plan" time.
+    EOT
+}
+
+variable "allowed_ipv6_prefix_list_ids" {
+  type        = list(string)
+  default     = []
+  description = <<-EOT
+    A list of IPv6 Prefix Lists IDs to allow access to the security group created by this module.
+    The length of this list must be known at "plan" time.
+    EOT
+}
+
 variable "organization_name" {
   type        = string
   description = "Name of organization to use in private certificate"
