@@ -25,8 +25,8 @@ github_repo: cloudposse/terraform-aws-ec2-client-vpn
 # Badges to display
 badges:
   - name: "Latest Release"
-    image: "https://img.shields.io/github/release/cloudposse/terraform-example-module.svg"
-    url: "https://github.com/cloudposse/terraform-example-module/releases/latest"
+    image: "https://img.shields.io/github/release/cloudposse/terraform-aws-ec2-client-vpn.svg"
+    url: "https://github.com/cloudposse/terraform-aws-ec2-client-vpn/releases/latest"
   - name: "Slack Community"
     image: "https://slack.cloudposse.com/badge.svg"
     url: "https://slack.cloudposse.com"
