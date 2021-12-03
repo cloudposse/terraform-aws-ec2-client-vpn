@@ -1,3 +1,9 @@
+variable "allowed_cidr_blocks" {
+  type        = list(string)
+  default     = []
+  description = "The CIDR blocks from which to allow `ingress` traffic to the VPN"
+}
+
 variable "client_cidr" {
   type        = string
   description = "Network CIDR to use for clients"
