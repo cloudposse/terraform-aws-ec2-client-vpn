@@ -20,14 +20,6 @@ locals {
   associated_security_group_ids = concat(var.additional_security_groups, var.associated_security_group_ids)
 }
 
-variable "allowed_security_group_ids" {
-  type        = list(string)
-  default     = []
-  description = <<-EOT
-    A list of IDs of Security Groups to allow access to the security group created by this module.
-    EOT
-}
-
 variable "security_group_name" {
   type        = list(string)
   default     = []
