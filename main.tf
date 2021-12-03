@@ -183,23 +183,17 @@ module "vpn_security_group" {
 
   security_group_description = var.security_group_description
   allow_all_egress           = true
-  rules                      = var.additional_security_group_rules
-  rule_matrix = [
+  rules = concat(var.additional_security_group_rules, [
     {
-      self                      = true
-      source_security_group_ids = local.allowed_security_group_ids
-      rules = [
-        {
-          key         = "vpn-self"
-          type        = "ingress"
-          from_port   = 0
-          to_port     = 0
-          protocol    = "-1"
-          description = "Allow self access only by default"
-        }
-      ]
+      key         = "vpn-self"
+      type        = "ingress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      description = "Allow self access only by default"
+      self        = true
     }
-  ]
+  ])
 
   vpc_id = var.vpc_id
 
