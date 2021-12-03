@@ -4,7 +4,7 @@ locals {
   mutual_enabled             = local.enabled && var.authentication_type == "certificate-authentication"
   federated_enabled          = local.enabled && var.authentication_type == "federated-authentication"
   logging_enabled            = local.enabled && var.logging_enabled
-  export_client_certificate  = local.enabled && var.export_client_certificate
+  export_client_certificate  = local.mutual_enabled && var.export_client_certificate
   certificate_backends       = ["ACM", "SSM"]
   saml_provider_arn          = local.federated_enabled ? try(aws_iam_saml_provider.default[0].arn, var.saml_provider_arn) : null
   root_certificate_chain_arn = local.mutual_enabled ? module.self_signed_cert_root.certificate_arn : null
@@ -233,7 +233,7 @@ data "awsutils_ec2_client_vpn_export_client_config" "default" {
 }
 
 data "aws_ssm_parameter" "root_key" {
-  count = local.enabled && var.export_client_certificate ? 1 : 0
+  count = local.export_client_certificate ? 1 : 0
 
   name = module.self_signed_cert_root.certificate_key_path
 
