@@ -29,7 +29,7 @@ organization_name = "Cloud Posse"
 
 availability_zones = ["us-east-2a", "us-east-2b"]
 
-additional_security_groups = []
+associated_security_group_ids = []
 
 authorization_rules = [
 ]

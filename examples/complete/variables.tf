@@ -38,7 +38,7 @@ variable "organization_name" {
   description = "Name of organization to use in private certificate"
 }
 
-variable "additional_security_groups" {
+variable "associated_security_group_ids" {
   description = "List of security groups to attach to the client vpn network associations"
   type        = list(string)
 }
