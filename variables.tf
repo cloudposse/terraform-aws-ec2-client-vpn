@@ -73,12 +73,6 @@ variable "additional_routes" {
   }))
 }
 
-variable "additional_security_groups" {
-  default     = []
-  description = "List of security groups to attach to the client vpn network associations"
-  type        = list(string)
-}
-
 variable "associated_subnets" {
   type        = list(string)
   description = "List of subnets to associate with the VPN endpoint"

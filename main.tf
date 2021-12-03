@@ -1,6 +1,7 @@
 locals {
   enabled = module.this.enabled
 
+  security_group_enabled     = local.enabled && var.create_security_group
   mutual_enabled             = local.enabled && var.authentication_type == "certificate-authentication"
   federated_enabled          = local.enabled && var.authentication_type == "federated-authentication"
   logging_enabled            = local.enabled && var.logging_enabled
@@ -174,16 +175,31 @@ module "vpn_security_group" {
   source  = "cloudposse/security-group/aws"
   version = "0.4.2"
 
-  rules = [
+  enabled                       = local.security_group_enabled
+  security_group_name           = var.security_group_name
+  create_before_destroy         = var.security_group_create_before_destroy
+  security_group_create_timeout = var.security_group_create_timeout
+  security_group_delete_timeout = var.security_group_delete_timeout
+
+  security_group_description = var.security_group_description
+  allow_all_egress           = true
+  rules                      = var.additional_security_group_rules
+  rule_matrix = [
     {
-      key         = "vpn-self"
-      type        = "ingress"
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      description = "Allow self access only by default"
-      self        = true
-    },
+      cidr_blocks               = var.allowed_cidr_blocks
+      ipv6_cidr_blocks          = var.allowed_ipv6_cidr_blocks
+      prefix_list_ids           = var.allowed_ipv6_prefix_list_ids
+      source_security_group_ids = var.allowed_security_group_ids
+      self                      = var.allow_self_security_group
+      rules = [{
+        key         = "vpn-self"
+        type        = "ingress"
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        description = "Allow all ingress from designated sources"
+      }]
+    }
   ]
 
   vpc_id = var.vpc_id
@@ -199,7 +215,7 @@ resource "aws_ec2_client_vpn_network_association" "default" {
 
   security_groups = concat(
     [module.vpn_security_group.id],
-    var.additional_security_groups
+    local.associated_security_group_ids
   )
 }
 
