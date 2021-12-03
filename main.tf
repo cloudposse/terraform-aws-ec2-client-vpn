@@ -190,7 +190,7 @@ module "vpn_security_group" {
       from_port   = 0
       to_port     = 0
       protocol    = "-1"
-      description = "Allow self access only by default"
+      description = "Allow all ingress to selected security groups"
       self        = true
     }
   ])
@@ -208,7 +208,7 @@ resource "aws_ec2_client_vpn_network_association" "default" {
 
   security_groups = concat(
     [module.vpn_security_group.id],
-    var.additional_security_groups
+    local.associated_security_group_ids
   )
 }
 
