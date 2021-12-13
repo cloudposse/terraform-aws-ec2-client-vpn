@@ -55,7 +55,7 @@ module "self_signed_cert_root" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
   version = "0.4.0"
 
-  name = "${module.this.context.name}-self-signed-cert-root"
+  attributes = ["self", "signed", "cert", "root"]
 
   enabled = local.mutual_enabled
 
