@@ -21,7 +21,7 @@ module "self_signed_cert_ca" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
   version = "0.4.0"
 
-  name = "self-signed-cert-ca"
+  name = "${module.this.context.name}-self-signed-cert-ca"
 
   subject = {
     common_name  = local.ca_common_name
@@ -55,7 +55,7 @@ module "self_signed_cert_root" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
   version = "0.4.0"
 
-  name = "self-signed-cert-root"
+  name = "${module.this.context.name}-self-signed-cert-root"
 
   enabled = local.mutual_enabled
 
@@ -90,7 +90,7 @@ module "self_signed_cert_server" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
   version = "0.4.0"
 
-  name = "self-signed-cert-server"
+  name = "${module.this.context.name}-self-signed-cert-server"
 
   subject = {
     common_name  = local.server_common_name
