@@ -90,7 +90,7 @@ module "self_signed_cert_server" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
   version = "0.4.0"
 
-  name = "${module.this.context.name}-self-signed-cert-server"
+  attributes = ["self", "signed", "cert", "server"]
 
   subject = {
     common_name  = local.server_common_name
