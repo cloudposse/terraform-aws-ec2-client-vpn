@@ -79,14 +79,16 @@ variable "associated_subnets" {
 }
 
 variable "authorization_rules" {
-  type = list(object({
-    name                 = string
-    access_group_id      = string
-    authorize_all_groups = bool
-    description          = string
-    target_network_cidr  = string
-  }))
+  # type = list(object({
+  #   name                 = string
+  #   access_group_id      = string
+  #   authorize_all_groups = bool
+  #   description          = string
+  #   target_network_cidr  = string
+  # }))
+  type        = list(map(any))
   description = "List of objects describing the authorization rules for the client vpn"
+  default     = []
 }
 
 variable "vpc_id" {
