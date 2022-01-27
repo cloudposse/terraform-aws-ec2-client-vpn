@@ -147,3 +147,21 @@ variable "split_tunnel" {
   type        = bool
   description = "Indicates whether split-tunnel is enabled on VPN endpoint. Default value is false."
 }
+
+variable "secret_path_format" {
+  description = <<-EOT
+  The path format to use when writing secrets to the certificate backend.
+  The certificate secret path will be computed as `format(var.secret_path_format, var.name, var.secret_extensions.certificate)`
+  and the private key path as `format(var.secret_path_format, var.name, var.secret_extensions.private_key)`.
+  Thus by default, if `var.name`=`example-self-signed-cert`, then the resulting secret paths for the self-signed certificate's
+  PEM file and private key will be `/example-self-signed-cert.pem` and `/example-self-signed-cert.key`, respectively.
+  This variable can be overridden in order to create more specific certificate backend paths.
+  EOT
+  type        = string
+  default     = "/%s.%s"
+
+  validation {
+    condition     = can(substr(var.secret_path_format, 0, 1) == "/")
+    error_message = "The secret path format must contain a leading slash."
+  }
+}
