@@ -228,8 +228,8 @@ resource "aws_ec2_client_vpn_network_association" "default" {
 resource "aws_ec2_client_vpn_authorization_rule" "default" {
   count = local.enabled ? length(var.authorization_rules) : 0
 
-  access_group_id        = var.authorization_rules[count.index].access_group_id
-  authorize_all_groups   = var.authorization_rules[count.index].authorize_all_groups
+  access_group_id        = lookup(var.authorization_rules[count.index], "access_group_id", null)
+  authorize_all_groups   = lookup(var.authorization_rules[count.index], "authorize_all_groups", null)
   client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
   description            = var.authorization_rules[count.index].description
   target_network_cidr    = var.authorization_rules[count.index].target_network_cidr
