@@ -143,7 +143,6 @@ module "ec2_client_vpn" {
   organization_name       = var.organization_name
   logging_enabled         = var.logging_enabled
   retention_in_days       = var.retention_in_days
-  internet_access_enabled = var.internet_access_enabled
   associated_subnets      = module.subnets.private_subnet_ids
   authorization_rules     = var.authorization_rules
 
