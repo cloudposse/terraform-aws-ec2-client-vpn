@@ -1,16 +1,17 @@
 locals {
   enabled = module.this.enabled
 
-  security_group_enabled = local.enabled && var.create_security_group
-  mutual_enabled         = local.enabled && var.authentication_type == "certificate-authentication"
-  federated_enabled      = local.enabled && var.authentication_type == "federated-authentication"
-  logging_enabled        = local.enabled && var.logging_enabled
+  security_group_enabled      = local.enabled && var.create_security_group
+  mutual_enabled              = local.enabled && var.authentication_type == "certificate-authentication"
+  federated_enabled           = local.enabled && var.authentication_type == "federated-authentication"
+  self_service_portal_enabled = local.federated_enabled && var.self_service_portal_enabled
+  logging_enabled             = local.enabled && var.logging_enabled
 
   export_client_certificate      = local.mutual_enabled && var.export_client_certificate
   certificate_backends           = ["ACM", "SSM"]
   saml_provider_arn              = local.federated_enabled ? try(aws_iam_saml_provider.default[0].arn, var.saml_provider_arn) : null
   root_certificate_chain_arn     = local.mutual_enabled ? module.self_signed_cert_root.certificate_arn : null
-  self_service_saml_provider_arn = var.authentication_type == "federated-authentication" ? var.self_service_saml_provider_arn : null
+  self_service_saml_provider_arn = local.self_service_portal_enabled ? var.self_service_saml_provider_arn : null
   cloudwatch_log_group           = local.logging_enabled ? module.cloudwatch_log.log_group_name : null
   cloudwatch_log_stream          = local.logging_enabled ? var.logging_stream_name : null
   ca_common_name                 = var.ca_common_name != null ? var.ca_common_name : "${module.this.id}.vpn.ca"
