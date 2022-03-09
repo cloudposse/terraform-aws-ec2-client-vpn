@@ -1,20 +1,22 @@
 locals {
   enabled = module.this.enabled
 
-  security_group_enabled     = local.enabled && var.create_security_group
-  mutual_enabled             = local.enabled && var.authentication_type == "certificate-authentication"
-  federated_enabled          = local.enabled && var.authentication_type == "federated-authentication"
-  logging_enabled            = local.enabled && var.logging_enabled
-  export_client_certificate  = local.mutual_enabled && var.export_client_certificate
-  certificate_backends       = ["ACM", "SSM"]
-  saml_provider_arn          = local.federated_enabled ? try(aws_iam_saml_provider.default[0].arn, var.saml_provider_arn) : null
-  root_certificate_chain_arn = local.mutual_enabled ? module.self_signed_cert_root.certificate_arn : null
-  cloudwatch_log_group       = local.logging_enabled ? module.cloudwatch_log.log_group_name : null
-  cloudwatch_log_stream      = local.logging_enabled ? var.logging_stream_name : null
-  ca_common_name             = var.ca_common_name != null ? var.ca_common_name : "${module.this.id}.vpn.ca"
-  root_common_name           = var.root_common_name != null ? var.root_common_name : "${module.this.id}.vpn.client"
-  server_common_name         = var.server_common_name != null ? var.server_common_name : "${module.this.id}.vpn.server"
-  client_conf_tmpl_path      = var.client_conf_tmpl_path == null ? "${path.module}/templates/client-config.ovpn.tpl" : var.client_conf_tmpl_path
+  security_group_enabled = local.enabled && var.create_security_group
+  mutual_enabled         = local.enabled && var.authentication_type == "certificate-authentication"
+  federated_enabled      = local.enabled && var.authentication_type == "federated-authentication"
+  logging_enabled        = local.enabled && var.logging_enabled
+
+  export_client_certificate      = local.mutual_enabled && var.export_client_certificate
+  certificate_backends           = ["ACM", "SSM"]
+  saml_provider_arn              = local.federated_enabled ? try(aws_iam_saml_provider.default[0].arn, var.saml_provider_arn) : null
+  root_certificate_chain_arn     = local.mutual_enabled ? module.self_signed_cert_root.certificate_arn : null
+  self_service_saml_provider_arn = var.authentication_type == "federated-authentication" ? var.self_service_saml_provider_arn : null
+  cloudwatch_log_group           = local.logging_enabled ? module.cloudwatch_log.log_group_name : null
+  cloudwatch_log_stream          = local.logging_enabled ? var.logging_stream_name : null
+  ca_common_name                 = var.ca_common_name != null ? var.ca_common_name : "${module.this.id}.vpn.ca"
+  root_common_name               = var.root_common_name != null ? var.root_common_name : "${module.this.id}.vpn.client"
+  server_common_name             = var.server_common_name != null ? var.server_common_name : "${module.this.id}.vpn.server"
+  client_conf_tmpl_path          = var.client_conf_tmpl_path == null ? "${path.module}/templates/client-config.ovpn.tpl" : var.client_conf_tmpl_path
 }
 
 module "self_signed_cert_ca" {
@@ -152,11 +154,13 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   description            = module.this.id
   server_certificate_arn = module.self_signed_cert_server.certificate_arn
   client_cidr_block      = var.client_cidr
+  self_service_portal    = var.self_service_portal
 
   authentication_options {
-    type                       = var.authentication_type
-    saml_provider_arn          = local.saml_provider_arn
-    root_certificate_chain_arn = local.root_certificate_chain_arn
+    type                           = var.authentication_type
+    saml_provider_arn              = local.saml_provider_arn
+    root_certificate_chain_arn     = local.root_certificate_chain_arn
+    self_service_saml_provider_arn = local.self_service_saml_provider_arn
   }
 
   connection_log_options {
@@ -165,8 +169,7 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
     cloudwatch_log_stream = local.cloudwatch_log_stream
   }
 
-  dns_servers = var.dns_servers
-
+  dns_servers  = var.dns_servers
   split_tunnel = var.split_tunnel
 
   tags = module.this.tags
