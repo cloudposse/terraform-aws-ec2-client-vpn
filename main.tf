@@ -155,7 +155,7 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   description            = module.this.id
   server_certificate_arn = module.self_signed_cert_server.certificate_arn
   client_cidr_block      = var.client_cidr
-  self_service_portal    = var.self_service_portal
+  self_service_portal    = var.self_service_portal_enabled ? "enabled" : "disabled"
 
   authentication_options {
     type                           = var.authentication_type
