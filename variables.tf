@@ -167,3 +167,15 @@ variable "secret_path_format" {
     error_message = "The secret path format must contain a leading slash."
   }
 }
+
+variable "self_service_portal_enabled" {
+  description = "Specify whether to enable the self-service portal for the Client VPN endpoint"
+  type        = bool
+  default     = false
+}
+
+variable "self_service_saml_provider_arn" {
+  description = "The ARN of the IAM SAML identity provider for the self service portal if type is federated-authentication."
+  type        = string
+  default     = null
+}
