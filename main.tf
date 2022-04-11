@@ -173,6 +173,8 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   dns_servers  = var.dns_servers
   split_tunnel = var.split_tunnel
 
+  session_timeout_hours = var.session_timeout_hours
+
   tags = module.this.tags
 
   depends_on = [

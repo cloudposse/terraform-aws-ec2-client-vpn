@@ -179,3 +179,9 @@ variable "self_service_saml_provider_arn" {
   type        = string
   default     = null
 }
+
+variable "session_timeout_hours" {
+  description = "The maximum session duration is a trigger by which end-users are required to re-authenticate prior to establishing a VPN session. Default value is 24."
+  type        = string
+  default     = "24"
+}
