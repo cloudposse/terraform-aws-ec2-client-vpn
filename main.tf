@@ -130,7 +130,7 @@ module "self_signed_cert_server" {
 
 module "cloudwatch_log" {
   source  = "cloudposse/cloudwatch-logs/aws"
-  version = "0.6.4"
+  version = "0.6.5"
   enabled = local.logging_enabled
 
   stream_names = [var.logging_stream_name]
