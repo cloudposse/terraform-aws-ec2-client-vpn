@@ -252,6 +252,11 @@ resource "aws_ec2_client_vpn_route" "default" {
   depends_on = [
     aws_ec2_client_vpn_network_association.default
   ]
+
+  timeouts {
+    create = "5m"
+    delete = "5m"
+  }
 }
 
 data "awsutils_ec2_client_vpn_export_client_config" "default" {
