@@ -255,7 +255,6 @@ resource "aws_ec2_client_vpn_route" "default" {
 
   timeouts {
     create = "5m"
-    update = "5m"
     delete = "5m"
   }
 }
