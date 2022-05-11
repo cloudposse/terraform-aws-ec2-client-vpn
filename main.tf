@@ -185,7 +185,7 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
 
 module "vpn_security_group" {
   source  = "cloudposse/security-group/aws"
-  version = "1.0.0"
+  version = "1.0.1"
 
   enabled                       = local.security_group_enabled
   security_group_name           = var.security_group_name
