@@ -32,4 +32,5 @@ output "full_client_configuration" {
     }
   ) : ""
   description = "Client configuration including client certificate and private key"
+  sensitive = true
 }
