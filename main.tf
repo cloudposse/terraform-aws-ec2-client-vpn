@@ -226,7 +226,7 @@ resource "aws_ec2_client_vpn_network_association" "default" {
   subnet_id              = var.associated_subnets[count.index]
 
   security_groups = concat(
-    [module.vpn_security_group.id],
+    module.vpn_security_group.id == null ? [] : [module.vpn_security_group.id],
     local.associated_security_group_ids
   )
 }
