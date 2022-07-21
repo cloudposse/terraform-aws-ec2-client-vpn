@@ -130,7 +130,7 @@ module "self_signed_cert_server" {
 
 module "cloudwatch_log" {
   source  = "cloudposse/cloudwatch-logs/aws"
-  version = "0.6.5"
+  version = "0.6.6"
   enabled = local.logging_enabled
 
   stream_names = [var.logging_stream_name]
@@ -225,10 +225,10 @@ resource "aws_ec2_client_vpn_network_association" "default" {
   client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
   subnet_id              = var.associated_subnets[count.index]
 
-  security_groups = concat(
+  security_groups = compact(concat(
     [module.vpn_security_group.id],
     local.associated_security_group_ids
-  )
+  ))
 }
 
 resource "aws_ec2_client_vpn_authorization_rule" "default" {
