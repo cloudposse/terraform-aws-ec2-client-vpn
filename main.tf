@@ -186,6 +186,7 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
     [module.vpn_security_group.id],
     local.associated_security_group_ids
   ))
+  vpc_id = var.vpc_id
 }
 
 module "vpn_security_group" {
