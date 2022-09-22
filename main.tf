@@ -22,7 +22,7 @@ locals {
 
 module "self_signed_cert_ca" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "0.5.0"
+  version = "1.0.0"
 
   attributes = ["self", "signed", "cert", "ca"]
 
@@ -58,7 +58,7 @@ data "aws_ssm_parameter" "ca_key" {
 
 module "self_signed_cert_root" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "0.5.0"
+  version = "1.0.0"
 
   attributes = ["self", "signed", "cert", "root"]
 
@@ -95,7 +95,7 @@ module "self_signed_cert_root" {
 
 module "self_signed_cert_server" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "0.5.0"
+  version = "1.0.0"
 
   attributes = ["self", "signed", "cert", "server"]
 
@@ -130,7 +130,7 @@ module "self_signed_cert_server" {
 
 module "cloudwatch_log" {
   source  = "cloudposse/cloudwatch-logs/aws"
-  version = "0.6.5"
+  version = "0.6.6"
   enabled = local.logging_enabled
 
   stream_names = [var.logging_stream_name]
@@ -181,6 +181,12 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
     module.self_signed_cert_server,
     module.self_signed_cert_root,
   ]
+
+  security_group_ids = compact(concat(
+    [module.vpn_security_group.id],
+    local.associated_security_group_ids
+  ))
+  vpc_id = var.vpc_id
 }
 
 module "vpn_security_group" {
@@ -224,11 +230,6 @@ resource "aws_ec2_client_vpn_network_association" "default" {
 
   client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
   subnet_id              = var.associated_subnets[count.index]
-
-  security_groups = concat(
-    [module.vpn_security_group.id],
-    local.associated_security_group_ids
-  )
 }
 
 resource "aws_ec2_client_vpn_authorization_rule" "default" {
