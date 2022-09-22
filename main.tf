@@ -181,6 +181,11 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
     module.self_signed_cert_server,
     module.self_signed_cert_root,
   ]
+
+  security_group_ids = compact(concat(
+    [module.vpn_security_group.id],
+    local.associated_security_group_ids
+  ))
 }
 
 module "vpn_security_group" {
@@ -224,11 +229,6 @@ resource "aws_ec2_client_vpn_network_association" "default" {
 
   client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
   subnet_id              = var.associated_subnets[count.index]
-
-  security_groups = compact(concat(
-    [module.vpn_security_group.id],
-    local.associated_security_group_ids
-  ))
 }
 
 resource "aws_ec2_client_vpn_authorization_rule" "default" {
