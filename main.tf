@@ -170,6 +170,14 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
     cloudwatch_log_stream = local.cloudwatch_log_stream
   }
 
+  dynamic "client_connect_options" {
+    for_each = var.connection_authorization_lambda_arn == null ? [] : [1]
+    content {
+      enabled             = true
+      lambda_function_arn = var.connection_authorization_lambda_arn
+    }
+  }
+
   dns_servers  = var.dns_servers
   split_tunnel = var.split_tunnel
 

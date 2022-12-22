@@ -190,3 +190,9 @@ variable "session_timeout_hours" {
     error_message = "The maximum session duration must one be one of: 8, 10, 12, 24."
   }
 }
+
+variable "connection_authorization_lambda_arn" {
+  description = "The Amazon Resource Name (ARN) of the Lambda function used for connection authorization."
+  type        = string
+  default     = null
+}
