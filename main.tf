@@ -22,7 +22,7 @@ locals {
 
 module "self_signed_cert_ca" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "1.0.0"
+  version = "1.1.0"
 
   attributes = ["self", "signed", "cert", "ca"]
 
