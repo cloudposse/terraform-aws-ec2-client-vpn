@@ -190,3 +190,13 @@ variable "session_timeout_hours" {
     error_message = "The maximum session duration must one be one of: 8, 10, 12, 24."
   }
 }
+
+variable "transport_protocol" {
+  description = "Transport protocol used by the TLS sessions."
+  type = string
+  default = "udp"
+  validation {
+    condition     = contains(["udp", "tcp"], var.transport_protocol)
+    error_message = "Invalid protocol type must be one of: udp, tcp."
+  }
+}
