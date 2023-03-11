@@ -193,8 +193,8 @@ variable "session_timeout_hours" {
 
 variable "transport_protocol" {
   description = "Transport protocol used by the TLS sessions."
-  type = string
-  default = "udp"
+  type        = string
+  default     = "udp"
   validation {
     condition     = contains(["udp", "tcp"], var.transport_protocol)
     error_message = "Invalid protocol type must be one of: udp, tcp."
