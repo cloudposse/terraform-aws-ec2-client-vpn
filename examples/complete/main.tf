@@ -24,14 +24,13 @@ module "vpc_target" {
 }
 
 module "subnets" {
-  source  = "cloudposse/dynamic-subnets/aws"
-  version = "0.39.8"
-
+  source               = "cloudposse/dynamic-subnets/aws"
+  version              = "2.3.0"
   availability_zones   = var.availability_zones
-  vpc_id               = module.vpc_target.vpc_id
-  igw_id               = module.vpc_target.igw_id
-  cidr_block           = module.vpc_target.vpc_cidr_block
-  nat_gateway_enabled  = true
+  vpc_id               = module.vpc.vpc_id
+  igw_id               = [module.vpc.igw_id]
+  ipv4_cidr_block      = [module.vpc.vpc_cidr_block]
+  nat_gateway_enabled  = false
   nat_instance_enabled = false
   context              = module.this.context
 }

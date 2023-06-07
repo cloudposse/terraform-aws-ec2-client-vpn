@@ -87,7 +87,7 @@ module "self_signed_cert_root" {
 
   certificate_chain = {
     cert_pem        = module.self_signed_cert_ca.certificate_pem,
-    private_key_pem = join("", data.aws_ssm_parameter.ca_key.*.value)
+    private_key_pem = join("", data.aws_ssm_parameter.ca_key[*].value)
   }
 
   context = module.this.context
@@ -122,7 +122,7 @@ module "self_signed_cert_server" {
 
   certificate_chain = {
     cert_pem        = module.self_signed_cert_ca.certificate_pem,
-    private_key_pem = join("", data.aws_ssm_parameter.ca_key.*.value)
+    private_key_pem = join("", data.aws_ssm_parameter.ca_key[*].value)
   }
 
   context = module.this.context
@@ -229,7 +229,7 @@ module "vpn_security_group" {
 resource "aws_ec2_client_vpn_network_association" "default" {
   count = local.enabled ? length(var.associated_subnets) : 0
 
-  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
+  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
   subnet_id              = var.associated_subnets[count.index]
 }
 
@@ -238,7 +238,7 @@ resource "aws_ec2_client_vpn_authorization_rule" "default" {
 
   access_group_id        = lookup(var.authorization_rules[count.index], "access_group_id", null)
   authorize_all_groups   = lookup(var.authorization_rules[count.index], "authorize_all_groups", null)
-  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
+  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
   description            = var.authorization_rules[count.index].description
   target_network_cidr    = var.authorization_rules[count.index].target_network_cidr
 }
@@ -248,7 +248,7 @@ resource "aws_ec2_client_vpn_route" "default" {
 
   description            = try(var.additional_routes[count.index].description, null)
   destination_cidr_block = var.additional_routes[count.index].destination_cidr_block
-  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
+  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
   target_vpc_subnet_id   = var.additional_routes[count.index].target_vpc_subnet_id
 
   depends_on = [
@@ -264,7 +264,7 @@ resource "aws_ec2_client_vpn_route" "default" {
 data "awsutils_ec2_client_vpn_export_client_config" "default" {
   count = local.enabled ? 1 : 0
 
-  id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
+  id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
 }
 
 data "aws_ssm_parameter" "root_key" {
