@@ -22,7 +22,7 @@ locals {
 
 module "self_signed_cert_ca" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "1.1.0"
+  version = "1.3.0"
 
   attributes = ["self", "signed", "cert", "ca"]
 
@@ -58,7 +58,7 @@ data "aws_ssm_parameter" "ca_key" {
 
 module "self_signed_cert_root" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "1.0.0"
+  version = "1.3.0"
 
   attributes = ["self", "signed", "cert", "root"]
 
@@ -87,7 +87,7 @@ module "self_signed_cert_root" {
 
   certificate_chain = {
     cert_pem        = module.self_signed_cert_ca.certificate_pem,
-    private_key_pem = join("", data.aws_ssm_parameter.ca_key.*.value)
+    private_key_pem = join("", data.aws_ssm_parameter.ca_key[*].value)
   }
 
   context = module.this.context
@@ -95,7 +95,7 @@ module "self_signed_cert_root" {
 
 module "self_signed_cert_server" {
   source  = "cloudposse/ssm-tls-self-signed-cert/aws"
-  version = "1.0.0"
+  version = "1.3.0"
 
   attributes = ["self", "signed", "cert", "server"]
 
@@ -122,7 +122,7 @@ module "self_signed_cert_server" {
 
   certificate_chain = {
     cert_pem        = module.self_signed_cert_ca.certificate_pem,
-    private_key_pem = join("", data.aws_ssm_parameter.ca_key.*.value)
+    private_key_pem = join("", data.aws_ssm_parameter.ca_key[*].value)
   }
 
   context = module.this.context
@@ -130,7 +130,7 @@ module "self_signed_cert_server" {
 
 module "cloudwatch_log" {
   source  = "cloudposse/cloudwatch-logs/aws"
-  version = "0.6.6"
+  version = "0.6.8"
   enabled = local.logging_enabled
 
   stream_names = [var.logging_stream_name]
@@ -192,7 +192,7 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
 
 module "vpn_security_group" {
   source  = "cloudposse/security-group/aws"
-  version = "1.0.1"
+  version = "2.2.0"
 
   enabled                       = local.security_group_enabled
   security_group_name           = var.security_group_name
@@ -229,7 +229,7 @@ module "vpn_security_group" {
 resource "aws_ec2_client_vpn_network_association" "default" {
   count = local.enabled ? length(var.associated_subnets) : 0
 
-  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
+  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
   subnet_id              = var.associated_subnets[count.index]
 }
 
@@ -238,7 +238,7 @@ resource "aws_ec2_client_vpn_authorization_rule" "default" {
 
   access_group_id        = lookup(var.authorization_rules[count.index], "access_group_id", null)
   authorize_all_groups   = lookup(var.authorization_rules[count.index], "authorize_all_groups", null)
-  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
+  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
   description            = var.authorization_rules[count.index].description
   target_network_cidr    = var.authorization_rules[count.index].target_network_cidr
 }
@@ -248,7 +248,7 @@ resource "aws_ec2_client_vpn_route" "default" {
 
   description            = try(var.additional_routes[count.index].description, null)
   destination_cidr_block = var.additional_routes[count.index].destination_cidr_block
-  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
+  client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
   target_vpc_subnet_id   = var.additional_routes[count.index].target_vpc_subnet_id
 
   depends_on = [
@@ -264,7 +264,7 @@ resource "aws_ec2_client_vpn_route" "default" {
 data "awsutils_ec2_client_vpn_export_client_config" "default" {
   count = local.enabled ? 1 : 0
 
-  id = join("", aws_ec2_client_vpn_endpoint.default.*.id)
+  id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
 }
 
 data "aws_ssm_parameter" "root_key" {
