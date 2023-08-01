@@ -14,11 +14,11 @@ locals {
   }]
 }
 
-module "vpc_target" {
+module "vpc" {
   source  = "cloudposse/vpc/aws"
-  version = "0.21.1"
+  version = "2.1.0"
 
-  cidr_block = var.target_cidr_block
+  ipv4_primary_cidr_block = var.target_cidr_block
 
   context = module.this.context
 }
@@ -54,7 +54,7 @@ module "ec2_client_vpn" {
   additional_routes             = local.additional_routes
   associated_security_group_ids = var.associated_security_group_ids
   export_client_certificate     = var.export_client_certificate
-  vpc_id                        = module.vpc_target.vpc_id
+  vpc_id                        = module.vpc.vpc_id
   dns_servers                   = var.dns_servers
   split_tunnel                  = var.split_tunnel
 
