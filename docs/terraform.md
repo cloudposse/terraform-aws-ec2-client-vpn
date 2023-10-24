@@ -98,6 +98,7 @@
 | <a name="input_tenant"></a> [tenant](#input\_tenant) | ID element \_(Rarely used, not included by default)\_. A customer identifier, indicating who this instance of a resource is for | `string` | `null` | no |
 | <a name="input_transport_protocol"></a> [transport\_protocol](#input\_transport\_protocol) | Transport protocol used by the TLS sessions. | `string` | `"udp"` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | ID of VPC to attach VPN to | `string` | n/a | yes |
+| <a name="input_vpn_port"></a> [vpn\_port](#input\_vpn\_port) | The port number to assign to the Client VPN endpoint for TCP and UDP traffic. | `number` | `443` | no |
 
 ## Outputs
 
