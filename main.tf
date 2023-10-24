@@ -173,6 +173,7 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
 
   dns_servers  = var.dns_servers
   split_tunnel = var.split_tunnel
+  vpn_port     = var.vpn_port
 
   session_timeout_hours = var.session_timeout_hours
 

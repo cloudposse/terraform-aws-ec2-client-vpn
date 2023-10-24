@@ -200,3 +200,9 @@ variable "transport_protocol" {
     error_message = "Invalid protocol type must be one of: udp, tcp."
   }
 }
+
+variable "vpn_port" {
+  description = "The port number to assign to the Client VPN endpoint for TCP and UDP traffic."
+  type        = number
+  default     = 443
+}
