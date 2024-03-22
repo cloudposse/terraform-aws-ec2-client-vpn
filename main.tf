@@ -227,29 +227,35 @@ module "vpn_security_group" {
 }
 
 resource "aws_ec2_client_vpn_network_association" "default" {
-  count = local.enabled ? length(var.associated_subnets) : 0
+  for_each = {
+    for k, v in var.associated_subnets: v => v
+  } if local.enabled
 
   client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
-  subnet_id              = var.associated_subnets[count.index]
+  subnet_id              = each.value
 }
 
 resource "aws_ec2_client_vpn_authorization_rule" "default" {
-  count = local.enabled ? length(var.authorization_rules) : 0
+  for_each = {
+    for k, v in var.authorization_rules: "${v.access_group_id}-${v.target_network_cidr}" => v
+  } if local.enabled
 
-  access_group_id        = lookup(var.authorization_rules[count.index], "access_group_id", null)
-  authorize_all_groups   = lookup(var.authorization_rules[count.index], "authorize_all_groups", null)
+  access_group_id        = lookup(each.value, "access_group_id", null)
+  authorize_all_groups   = lookup(each.value, "authorize_all_groups", null)
   client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
-  description            = var.authorization_rules[count.index].description
-  target_network_cidr    = var.authorization_rules[count.index].target_network_cidr
+  description            = each.value.description
+  target_network_cidr    = each.value.target_network_cidr
 }
 
 resource "aws_ec2_client_vpn_route" "default" {
-  count = local.enabled ? length(var.additional_routes) : 0
+  for_each = {
+    for k, v in var.additional_routes: "${v.destination_cidr_block}-${target_vpc_subnet_id}" => v
+  } if local.enabled
 
-  description            = try(var.additional_routes[count.index].description, null)
-  destination_cidr_block = var.additional_routes[count.index].destination_cidr_block
+  description            = lookup(each.value, "description", null)
+  destination_cidr_block = each.value.destination_cidr_block
   client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
-  target_vpc_subnet_id   = var.additional_routes[count.index].target_vpc_subnet_id
+  target_vpc_subnet_id   = each.value.target_vpc_subnet_id
 
   depends_on = [
     aws_ec2_client_vpn_network_association.default
