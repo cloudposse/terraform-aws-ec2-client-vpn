@@ -249,7 +249,7 @@ resource "aws_ec2_client_vpn_authorization_rule" "default" {
 
 resource "aws_ec2_client_vpn_route" "default" {
   for_each = {
-    for k, v in var.additional_routes: "${v.destination_cidr_block}-${target_vpc_subnet_id}" => v if local.enabled
+    for k, v in var.additional_routes: "${v.destination_cidr_block}-${v.target_vpc_subnet_id}" => v if local.enabled
   }
 
   description            = lookup(each.value, "description", null)
