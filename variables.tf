@@ -200,3 +200,9 @@ variable "transport_protocol" {
     error_message = "Invalid protocol type must be one of: udp, tcp."
   }
 }
+
+variable "permissions_boundary" {
+  type        = string
+  default     = ""
+  description = "ARN of the policy that is used to set the permissions boundary for the IAM role"
+}
