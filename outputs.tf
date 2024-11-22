@@ -13,6 +13,16 @@ output "vpn_endpoint_dns_name" {
   description = "The DNS Name of the Client VPN Endpoint Connection."
 }
 
+output "vpn_security_group" {
+  value       = local.enabled ? module.vpn_security_group : null
+  description = "The security group module of the Client VPN Endpoint Connection."
+}
+
+output "vpn_security_group_id" {
+  value       = local.enabled ? module.vpn_security_group.id : null
+  description = "The security group ID of the Client VPN Endpoint Connection."
+}
+
 output "client_configuration" {
   value       = local.enabled ? join("", data.awsutils_ec2_client_vpn_export_client_config.default[*].client_configuration) : null
   description = "VPN Client Configuration data."
