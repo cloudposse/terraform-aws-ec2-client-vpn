@@ -201,8 +201,8 @@ variable "transport_protocol" {
   }
 }
 
-variable "permissions_boundary" {
+variable "logging_permissions_boundary" {
   type        = string
-  default     = ""
-  description = "ARN of the policy that is used to set the permissions boundary for the IAM role"
+  default     = null
+  description = "ARN of the policy that is used to set the permissions boundary for the IAM role used in the CloudWatch logging configuration."
 }

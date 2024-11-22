@@ -137,7 +137,7 @@ module "cloudwatch_log" {
 
   retention_in_days = var.retention_in_days
 
-  permissions_boundary = var.permissions_boundary
+  permissions_boundary = var.logging_permissions_boundary
 
   context = module.this.context
 }
