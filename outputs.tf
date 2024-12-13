@@ -14,12 +14,12 @@ output "vpn_endpoint_dns_name" {
 }
 
 output "vpn_security_group" {
-  value       = local.enabled ? module.vpn_security_group : null
+  value       = local.security_group_enabled ? module.vpn_security_group : null
   description = "The security group module of the Client VPN Endpoint Connection."
 }
 
 output "vpn_security_group_id" {
-  value       = local.enabled ? module.vpn_security_group.id : null
+  value       = local.security_group_enabled ? module.vpn_security_group.id : null
   description = "The security group ID of the Client VPN Endpoint Connection."
 }
 
