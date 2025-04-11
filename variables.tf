@@ -200,3 +200,9 @@ variable "transport_protocol" {
     error_message = "Invalid protocol type must be one of: udp, tcp."
   }
 }
+
+variable "logging_permissions_boundary" {
+  type        = string
+  default     = null
+  description = "ARN of the policy that is used to set the permissions boundary for the IAM role used in the CloudWatch logging configuration."
+}
