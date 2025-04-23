@@ -97,3 +97,9 @@ variable "split_tunnel" {
   type        = bool
   description = "(Optional) Indicates whether split-tunnel is enabled on VPN endpoint. Default value is false."
 }
+
+variable "disconnect_on_session_timeout" {
+  type        = bool
+  default     = false
+  description = "Indicates whether the session is disconnected after the maximum session_timeout_hours is reached."
+}
