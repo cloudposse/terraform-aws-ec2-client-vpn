@@ -18,6 +18,7 @@ locals {
   root_common_name               = var.root_common_name != null ? var.root_common_name : "${module.this.id}.vpn.client"
   server_common_name             = var.server_common_name != null ? var.server_common_name : "${module.this.id}.vpn.server"
   client_conf_tmpl_path          = var.client_conf_tmpl_path == null ? "${path.module}/templates/client-config.ovpn.tpl" : var.client_conf_tmpl_path
+  server_certificate_arn         = var.acm_certificate_enabled ? var.server_certificate_arn: module.self_signed_cert_server.certificate_arn
 }
 
 module "self_signed_cert_ca" {
@@ -155,7 +156,8 @@ resource "aws_ec2_client_vpn_endpoint" "default" {
   count = local.enabled ? 1 : 0
 
   description            = module.this.id
-  server_certificate_arn = module.self_signed_cert_server.certificate_arn
+  # server_certificate_arn = module.self_signed_cert_server.certificate_arn
+  server_certificate_arn = local.server_certificate_arn
   client_cidr_block      = var.client_cidr
   self_service_portal    = local.self_service_portal_enabled ? "enabled" : "disabled"
   transport_protocol     = var.transport_protocol
