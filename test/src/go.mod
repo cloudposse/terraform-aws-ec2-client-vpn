@@ -1,6 +1,6 @@
 module github.com/cloudposse/terraform-example-module
 
-go 1.20
+go 1.23
 
 require (
 	github.com/gruntwork-io/terratest v0.41.16
