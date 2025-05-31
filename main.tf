@@ -18,7 +18,7 @@ locals {
   root_common_name               = var.root_common_name != null ? var.root_common_name : "${module.this.id}.vpn.client"
   server_common_name             = var.server_common_name != null ? var.server_common_name : "${module.this.id}.vpn.server"
   client_conf_tmpl_path          = var.client_conf_tmpl_path == null ? "${path.module}/templates/client-config.ovpn.tpl" : var.client_conf_tmpl_path
-  server_certificate_arn         = var.acm_certificate_enabled ? var.server_certificate_arn: module.self_signed_cert_server.certificate_arn
+  server_certificate_arn         = var.acm_certificate_enabled ? var.server_certificate_arn : module.self_signed_cert_server.certificate_arn
 }
 
 module "self_signed_cert_ca" {
