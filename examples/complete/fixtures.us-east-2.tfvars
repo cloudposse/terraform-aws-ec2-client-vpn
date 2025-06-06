@@ -37,3 +37,5 @@ authorization_rules = [
 split_tunnel = true
 
 export_client_certificate = true
+
+disconnect_on_session_timeout = true
