@@ -9,6 +9,12 @@ variable "logging_enabled" {
   description = "Enables or disables Client VPN Cloudwatch logging."
 }
 
+variable "acm_certificate_enabled" {
+  type        = bool
+  default     = false
+  description = "Flag to determine whether to use ACM certificate for the Client VPN endpoint"
+}
+
 variable "authentication_type" {
   type        = string
   default     = "certificate-authentication"
@@ -24,6 +30,11 @@ variable "authentication_type" {
 variable "organization_name" {
   type        = string
   description = "Name of organization to use in private certificate"
+}
+
+variable "server_certificate_arn" {
+  type        = string
+  description = "ACM certificate ARN to use for the Client VPN endpoint. Required if `acm_certificate_enabled` is true."
 }
 
 variable "retention_in_days" {
