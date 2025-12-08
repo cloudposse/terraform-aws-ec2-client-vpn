@@ -230,7 +230,7 @@ module "vpn_security_group" {
 
 resource "aws_ec2_client_vpn_network_association" "default" {
   for_each = {
-    for k, v in var.associated_subnets: v => v if local.enabled
+    for k, v in var.associated_subnets : tostring(k) => v if local.enabled
   }
 
   client_vpn_endpoint_id = join("", aws_ec2_client_vpn_endpoint.default[*].id)
@@ -239,7 +239,7 @@ resource "aws_ec2_client_vpn_network_association" "default" {
 
 resource "aws_ec2_client_vpn_authorization_rule" "default" {
   for_each = {
-    for k, v in var.authorization_rules: "${v.access_group_id}-${v.target_network_cidr}" => v if local.enabled
+    for k, v in var.authorization_rules : tostring(k) => v if local.enabled
   }
 
   access_group_id        = lookup(each.value, "access_group_id", null)
@@ -251,7 +251,7 @@ resource "aws_ec2_client_vpn_authorization_rule" "default" {
 
 resource "aws_ec2_client_vpn_route" "default" {
   for_each = {
-    for k, v in var.additional_routes: "${v.destination_cidr_block}-${v.target_vpc_subnet_id}" => v if local.enabled
+    for k, v in var.additional_routes : tostring(k) => v if local.enabled
   }
 
   description            = lookup(each.value, "description", null)
