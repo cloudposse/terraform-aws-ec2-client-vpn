@@ -16,10 +16,11 @@ The following resources now use `for_each` instead of `count`:
 **Impact:** Terraform will see existing resources as needing replacement. To avoid recreation, migrate state before applying:
 
 ```bash
-# Example state migration
-terraform state mv 'aws_ec2_client_vpn_network_association.default[0]' 'aws_ec2_client_vpn_network_association.default["<subnet-id>"]'
-terraform state mv 'aws_ec2_client_vpn_authorization_rule.default[0]' 'aws_ec2_client_vpn_authorization_rule.default["<access-group-id>-<cidr>"]'
-terraform state mv 'aws_ec2_client_vpn_route.default[0]' 'aws_ec2_client_vpn_route.default["<cidr>-<subnet-id>"]'
+# Example state migration (keys are list indices as strings: "0", "1", etc.)
+terraform state mv 'aws_ec2_client_vpn_network_association.default[0]' 'aws_ec2_client_vpn_network_association.default["0"]'
+terraform state mv 'aws_ec2_client_vpn_network_association.default[1]' 'aws_ec2_client_vpn_network_association.default["1"]'
+terraform state mv 'aws_ec2_client_vpn_authorization_rule.default[0]' 'aws_ec2_client_vpn_authorization_rule.default["0"]'
+terraform state mv 'aws_ec2_client_vpn_route.default[0]' 'aws_ec2_client_vpn_route.default["0"]'
 ```
 
 Thanks to @jurgenweber for the contribution!
