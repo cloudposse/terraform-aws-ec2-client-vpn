@@ -239,7 +239,7 @@ resource "aws_ec2_client_vpn_network_association" "default" {
 
 resource "aws_ec2_client_vpn_authorization_rule" "default" {
   for_each = {
-    for k, v in var.authorization_rules : tostring(k) => v if local.enabled
+    for k, v in var.authorization_rules : coalesce(lookup(v, "name", null), tostring(k)) => v if local.enabled
   }
 
   access_group_id        = lookup(each.value, "access_group_id", null)
@@ -251,7 +251,7 @@ resource "aws_ec2_client_vpn_authorization_rule" "default" {
 
 resource "aws_ec2_client_vpn_route" "default" {
   for_each = {
-    for k, v in var.additional_routes : tostring(k) => v if local.enabled
+    for k, v in var.additional_routes : coalesce(v.name, tostring(k)) => v if local.enabled
   }
 
   description            = lookup(each.value, "description", null)

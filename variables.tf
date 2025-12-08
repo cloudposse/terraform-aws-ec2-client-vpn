@@ -70,6 +70,7 @@ variable "additional_routes" {
     destination_cidr_block = string
     description            = string
     target_vpc_subnet_id   = string
+    name                   = optional(string)
   }))
 }
 
