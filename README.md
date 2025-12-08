@@ -105,6 +105,7 @@ module "ec2_client_vpn" {
 
   additional_routes = [
     {
+      name                   = "internet"
       destination_cidr_block = "0.0.0.0/0"
       description            = "Internet Route"
       target_vpc_subnet_id   = element(module.subnets.private_subnet_ids, 0)
@@ -175,7 +176,7 @@ Here is an example of using this module:
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_additional_routes"></a> [additional\_routes](#input\_additional\_routes) | A list of additional routes that should be attached to the Client VPN endpoint | <pre>list(object({<br/>    destination_cidr_block = string<br/>    description            = string<br/>    target_vpc_subnet_id   = string<br/>  }))</pre> | `[]` | no |
+| <a name="input_additional_routes"></a> [additional\_routes](#input\_additional\_routes) | A list of additional routes that should be attached to the Client VPN endpoint | <pre>list(object({<br/>    destination_cidr_block = string<br/>    description            = string<br/>    target_vpc_subnet_id   = string<br/>    name                   = optional(string)<br/>  }))</pre> | `[]` | no |
 | <a name="input_additional_security_group_rules"></a> [additional\_security\_group\_rules](#input\_additional\_security\_group\_rules) | A list of Security Group rule objects to add to the created security group, in addition to the ones<br/>this module normally creates. (To suppress the module's rules, set `create_security_group` to false<br/>and supply your own security group via `associated_security_group_ids`.)<br/>The keys and values of the objects are fully compatible with the `aws_security_group_rule` resource, except<br/>for `security_group_id` which will be ignored, and the optional "key" which, if provided, must be unique and known at "plan" time.<br/>To get more info see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule . | `list(any)` | `[]` | no |
 | <a name="input_additional_security_groups"></a> [additional\_security\_groups](#input\_additional\_security\_groups) | DEPRECATED: Use `associated_security_group_ids` instead.<br/>List of security groups to attach to the client vpn network associations | `list(string)` | `[]` | no |
 | <a name="input_additional_tag_map"></a> [additional\_tag\_map](#input\_additional\_tag\_map) | Additional key-value pairs to add to each map in `tags_as_list_of_maps`. Not added to `tags` or `id`.<br/>This is for some rare cases where resources want additional configuration of tags<br/>and therefore take a list of maps with tag key, value, and additional configuration. | `map(string)` | `{}` | no |
