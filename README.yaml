@@ -116,6 +116,7 @@ usage: |-
 
     additional_routes = [
       {
+        name                   = "internet"
         destination_cidr_block = "0.0.0.0/0"
         description            = "Internet Route"
         target_vpc_subnet_id   = element(module.subnets.private_subnet_ids, 0)

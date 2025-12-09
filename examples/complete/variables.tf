@@ -61,6 +61,7 @@ variable "additional_routes" {
   type = list(object({
     destination_cidr_block = string
     description            = string
+    name                   = optional(string)
   }))
 }
 

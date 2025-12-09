@@ -11,6 +11,7 @@ locals {
     destination_cidr_block = route.destination_cidr_block
     description            = route.description
     target_vpc_subnet_id   = element(module.subnets.private_subnet_ids, 0)
+    name                   = route.name
   }]
 }
 
