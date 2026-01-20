@@ -192,6 +192,12 @@ variable "session_timeout_hours" {
   }
 }
 
+variable "disconnect_on_session_timeout" {
+  type        = bool
+  default     = false
+  description = "Indicates whether the session is disconnected after the maximum session_timeout_hours is reached."
+}
+
 variable "transport_protocol" {
   description = "Transport protocol used by the TLS sessions."
   type        = string

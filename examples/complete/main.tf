@@ -58,6 +58,7 @@ module "ec2_client_vpn" {
   vpc_id                        = module.vpc.vpc_id
   dns_servers                   = var.dns_servers
   split_tunnel                  = var.split_tunnel
+  disconnect_on_session_timeout = var.disconnect_on_session_timeout
 
   context = module.this.context
 }
